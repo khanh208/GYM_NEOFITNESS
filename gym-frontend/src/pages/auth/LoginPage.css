@@ -1,0 +1,109 @@
+/* src/pages/LoginPage.css */
+body {
+    margin: 0;
+    font-family: sans-serif; /* Font cơ bản */
+}
+
+.login-page {
+    display: flex; /* Căn giữa form theo chiều dọc và ngang */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Chiều cao tối thiểu bằng màn hình */
+    background-color: #360606; /* Nền đen */
+}
+
+.login-container {
+    width: 800px; /* Chiều rộng form */
+    padding: 100px;
+    background-color: #7d1919; /* Nền đỏ đậm */
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(87, 2, 2, 0.4);
+    color: #fff; /* Chữ trắng */
+    box-sizing: border-box;
+}
+
+.login-container h2 {
+    text-align: center;
+    margin-top: 0; /* Bỏ margin trên của H2 */
+    margin-bottom: 30px;
+    font-size: 1.8em;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 25px;
+    background-color: rgba(0, 0, 0, 0.2); /* Nền ô input hơi tối */
+    color: #fff;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+.form-group input::placeholder {
+    color: #eee;
+}
+
+.form-links {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    font-size: 0.9em;
+}
+
+.form-links a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.form-links a:hover {
+    text-decoration: underline;
+}
+
+button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 25px;
+    background-color: #fff; /* Nút trắng */
+    color: #7c0e0e; /* Chữ đỏ */
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #f5f5f5; /* Hơi xám khi hover */
+}
+
+button[type="submit"]:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #ffeb3b; /* Vàng */
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+/* Responsive cơ bản */
+@media (max-width: 480px) {
+    .login-container {
+        width: 90%;
+        padding: 30px;
+    }
+}

@@ -1,0 +1,74 @@
+/* src/pages/public/BookingPage.css */
+
+.booking-page-container {
+    max-width: 800px; /* Form hẹp hơn */
+    margin: 40px auto;
+    padding: 20px 5%;
+    color: #fff;
+}
+
+.booking-page-title {
+    font-size: 2.5em;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.booking-page-subtitle {
+    font-size: 1.1em;
+    color: #ccc;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.booking-form-wrapper {
+    background-color: #1a1a1a;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+/* Tái sử dụng CSS từ ContactPage/FaqPage */
+.booking-form-wrapper .form-group-contact {
+    margin-bottom: 20px;
+}
+.booking-form-wrapper .form-group-contact label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+.booking-form-wrapper .form-group-contact input,
+.booking-form-wrapper .form-group-contact select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #444;
+    background-color: #2c2c2c;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 1em;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+/* CSS riêng cho input datetime */
+.booking-form-wrapper .form-group-contact input[type="datetime-local"] {
+    color-scheme: dark; /* Đảm bảo lịch/đồng hồ có nền tối */
+}
+
+.booking-form-wrapper .hero-button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.booking-form-wrapper .contact-success-message,
+.booking-form-wrapper .contact-error-message {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.booking-form-wrapper .contact-success-message {
+    color: #4CAF50;
+}
+.booking-form-wrapper .contact-error-message {
+    color: #f44336;
+}

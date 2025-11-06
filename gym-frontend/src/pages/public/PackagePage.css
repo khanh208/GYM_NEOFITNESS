@@ -1,0 +1,164 @@
+/* src/pages/public/PackagePage.css */
+
+.package-page-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px 5%;
+    color: #fff;
+}
+
+.package-page-title {
+    font-size: 2.5em;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.package-page-subtitle {
+    font-size: 1.1em;
+    color: #ccc;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.package-list-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 cột */
+    gap: 30px;
+}
+
+/* --- Tái sử dụng CSS từ HomePage --- */
+/* (Bạn có thể copy .pricing-card và các style liên quan từ HomePage.css vào đây) */
+/* Hoặc import HomePage.css nếu muốn dùng chung */
+/* Tạm thời copy các style cần thiết: */
+
+.pricing-card {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+}
+
+.pricing-card.featured {
+    border-color: #d32f2f;
+}
+
+.pricing-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #d32f2f;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.pricing-type {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #aaa;
+}
+
+.pricing-name {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #fff;
+    margin: 5px 0 15px 0;
+}
+
+.pricing-description {
+    font-size: 0.95em;
+    color: #ccc;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+.pricing-price {
+    font-size: 2.8em;
+    font-weight: 800;
+    color: #fff;
+    margin: 15px 0;
+}
+
+.pricing-price .original-price {
+    font-size: 0.5em;
+    color: #777;
+    text-decoration: line-through;
+    margin-right: 10px;
+    font-weight: 400;
+}
+
+.pricing-price .pricing-unit {
+    font-size: 0.4em;
+    font-weight: 500;
+    color: #aaa;
+    margin-left: 5px;
+}
+
+.pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 25px 0;
+    font-size: 0.9em;
+    color: #ccc;
+}
+
+.pricing-features li {
+    margin-bottom: 8px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.pricing-features li::before {
+    content: '✓';
+    color: #d32f2f;
+    position: absolute;
+    left: 0;
+}
+
+.pricing-button {
+    background-color: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    display: block; /* Đảm bảo nút chiếm đủ không gian */
+}
+
+.pricing-card:not(.featured) .pricing-button {
+    background-color: #fff;
+    color: #d32f2f;
+}
+.pricing-button:hover {
+    opacity: 0.9;
+}
+
+
+/* Responsive */
+@media (max-width: 992px) {
+    .package-list-grid {
+        grid-template-columns: 1fr 1fr; /* 2 cột */
+    }
+}
+
+@media (max-width: 768px) {
+    .package-list-grid {
+        grid-template-columns: 1fr; /* 1 cột */
+    }
+}

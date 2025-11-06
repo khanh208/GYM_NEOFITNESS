@@ -1,0 +1,71 @@
+/* src/pages/public/FaqPage.css */
+
+.faq-page-container {
+    max-width: 900px; /* Rộng hơn một chút so với homepage */
+    margin: 40px auto;
+    padding: 20px 5%;
+    color: #fff;
+}
+
+.faq-page-title {
+    font-size: 2.5em;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #fff;
+}
+
+.faq-list-page {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.faq-item-page {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.faq-question-page {
+    background-color: #2c2c2c;
+    border: none;
+    padding: 20px 25px;
+    width: 100%;
+    text-align: left;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-question-page:hover {
+    background-color: #333;
+}
+
+.faq-answer-page {
+    padding: 25px;
+    color: #ccc;
+    line-height: 1.7;
+    border-top: 1px solid #333;
+    animation: fadeInAnswer 0.3s ease;
+}
+
+.faq-answer-page p {
+    margin: 0;
+}
+
+@keyframes fadeInAnswer {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

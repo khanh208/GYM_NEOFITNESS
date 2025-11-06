@@ -1,0 +1,563 @@
+/* src/pages/HomePage.css */
+
+/* --- Hero Section --- */
+.hero-section {
+    position: relative; /* Quan trọng để hero-image-container nằm trong */
+    width: 100%;
+    height: 600px; /* Chiều cao cố định cho hero section */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    overflow: hidden; /* Đảm bảo ảnh không tràn ra ngoài */
+}
+
+.hero-image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Đảm bảo ảnh nền không tràn ra ngoài */
+    z-index: 0; /* Đặt ảnh ở lớp dưới cùng */
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Đảm bảo ảnh phủ kín container mà không bị biến dạng */
+    object-position: center; /* Căn giữa ảnh */
+    filter: brightness(60%) contrast(120%); /* Làm tối và tăng độ tương phản của ảnh */
+    transform: scale(1.05); /* Phóng to nhẹ để tránh viền và tạo hiệu ứng */
+}
+
+/* Overlay đen để chữ nổi bật hơn trên ảnh */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)); /* Overlay gradient */
+    z-index: 1; /* Nằm trên ảnh nhưng dưới nội dung chữ */
+}
+
+/* Nội dung chữ của Hero Section */
+.hero-content {
+    position: relative; /* Đặt nội dung ở lớp trên */
+    z-index: 2;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+.hero-content h1 {
+    font-size: 3.8em; /* To hơn */
+    margin-bottom: 20px;
+    line-height: 1.2;
+    font-weight: 800;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.hero-content p {
+    font-size: 1.3em; /* Lớn hơn */
+    margin-bottom: 30px;
+    font-weight: 300;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.hero-button {
+    background-color: #d32f2f; /* Màu đỏ nổi bật */
+    color: #fff;
+    padding: 15px 35px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px; /* Bo tròn nút */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    text-decoration: none; /* Bỏ gạch chân cho link */
+    display: inline-block; /* Để padding hoạt động */
+}
+
+.hero-button:hover {
+    background-color: #e53935; /* Đậm hơn khi hover */
+    transform: translateY(-3px);
+}
+.section-container {
+    max-width: 1200px;
+    margin: 60px auto; /* Tăng khoảng cách giữa các section */
+    padding: 40px 5%;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+}
+
+.section-title {
+    color: #d32f2f; /* Màu đỏ */
+    font-size: 0.9em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.section-subtitle {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #fff;
+    margin: 10px 0 30px 0;
+}
+
+/* --- CSS cho Section HLV --- */
+.trainer-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Tạo layout 3 cột */
+    gap: 30px;
+}
+
+.trainer-card {
+    background-color: #2c2c2c; /* Nền card */
+    border-radius: 10px;
+    overflow: hidden; /* Để bo góc ảnh */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.trainer-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.trainer-card-image {
+    height: 300px; /* Chiều cao ảnh */
+    background-color: #555; /* Màu placeholder */
+    background-size: cover;
+    background-position: center;
+    border-bottom: 3px solid #d32f2f; /* Viền đỏ */
+}
+
+.trainer-card-content {
+    padding: 20px;
+}
+
+.trainer-card-content .trainer-specialty {
+    font-size: 0.9em;
+    color: #aaa;
+}
+
+.trainer-card-content .trainer-name {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #fff;
+    margin: 5px 0 0 0;
+}
+
+/* Responsive cho Section HLV */
+@media (max-width: 992px) {
+    .trainer-list {
+        grid-template-columns: 1fr 1fr; /* 2 cột trên tablet */
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column; /* Xếp chồng trên mobile */
+    }
+    .section-subtitle {
+        font-size: 2em;
+    }
+    .trainer-list {
+        grid-template-columns: 1fr; /* 1 cột trên mobile */
+    }
+}
+.pricing-section {
+    background-color: #000; /* Nền đen tuyền cho section này */
+}
+
+.pricing-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.pricing-card {
+    background-color: #1e1e1e; /* Nền card tối */
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Để định vị badge */
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Card nổi bật (có khuyến mãi) */
+.pricing-card.featured {
+    border-color: #d32f2f; /* Viền đỏ */
+    transform: scale(1.05); /* To hơn một chút */
+    box-shadow: 0 0 20px rgba(211, 47, 47, 0.3);
+}
+
+.pricing-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #d32f2f;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.pricing-type {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #aaa;
+}
+
+.pricing-name {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #fff;
+    margin: 5px 0 15px 0;
+}
+
+.pricing-description {
+    font-size: 0.95em;
+    color: #ccc;
+    line-height: 1.6;
+    flex-grow: 1; /* Đẩy giá và nút xuống dưới */
+}
+
+.pricing-price {
+    font-size: 2.8em;
+    font-weight: 800;
+    color: #fff;
+    margin: 15px 0;
+}
+
+.pricing-price .original-price {
+    font-size: 0.5em; /* Nhỏ hơn */
+    color: #777;
+    text-decoration: line-through;
+    margin-right: 10px;
+    font-weight: 400;
+}
+
+.pricing-price .pricing-unit {
+    font-size: 0.4em;
+    font-weight: 500;
+    color: #aaa;
+    margin-left: 5px;
+}
+
+.pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 25px 0;
+    font-size: 0.9em;
+    color: #ccc;
+}
+
+.pricing-features li {
+    margin-bottom: 8px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.pricing-features li::before {
+    /* (Tùy chọn) Thêm icon check */
+    content: '✓';
+    color: #d32f2f;
+    position: absolute;
+    left: 0;
+}
+
+.pricing-button {
+    background-color: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.pricing-card:not(.featured) .pricing-button {
+    background-color: #fff;
+    color: #d32f2f;
+}
+
+/* Responsive cho Section Giá */
+@media (max-width: 992px) {
+    .pricing-list {
+        grid-template-columns: 1fr; /* 1 cột trên tablet/mobile */
+    }
+    .pricing-card.featured {
+        transform: scale(1); /* Bỏ phóng to trên mobile */
+    }
+}
+.steps-section {
+    background-color: #1a1a1a; /* Nền tối giống các section khác */
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cột */
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.step-card {
+    background-color: #2c2c2c; /* Nền card tối hơn */
+    padding: 30px;
+    border-radius: 10px;
+    border-top: 4px solid #d32f2f; /* Viền đỏ phía trên */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.step-number {
+    font-size: 1.8em;
+    font-weight: 800;
+    color: #d32f2f; /* Số màu đỏ */
+    display: block;
+    margin-bottom: 10px;
+}
+
+.step-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: #fff;
+    margin: 10px 0;
+}
+
+.step-description {
+    font-size: 1em;
+    color: #ccc;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Responsive cho Section "4 Bước" */
+@media (max-width: 992px) {
+    .steps-grid {
+        grid-template-columns: 1fr 1fr; /* 2 cột trên tablet */
+    }
+}
+
+@media (max-width: 768px) {
+    .steps-grid {
+        grid-template-columns: 1fr; /* 1 cột trên mobile */
+    }
+}
+/* --- CSS cho Section "FAQs" --- */
+.faq-section {
+    background-color: #000; /* Nền đen */
+}
+
+.faq-list {
+    max-width: 800px; /* Giới hạn chiều rộng cho dễ đọc */
+    margin: 40px auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.faq-item {
+    background-color: #1e1e1e; /* Nền card */
+    border: 1px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.faq-question {
+    background-color: #2c2c2c; /* Nền câu hỏi */
+    border: none;
+    padding: 20px 25px;
+    width: 100%;
+    text-align: left;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-question:hover {
+    background-color: #333;
+}
+
+.faq-answer {
+    padding: 25px;
+    color: #ccc;
+    line-height: 1.7;
+    border-top: 1px solid #333;
+}
+
+.faq-answer p {
+    margin: 0;
+}
+
+/* --- CSS cho Section "Call to Action (CTA)" --- */
+.cta-section {
+    background-color: #1a1a1a;
+}
+
+.cta-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #d32f2f; /* Nền đỏ */
+    padding: 40px 50px;
+    border-radius: 10px;
+}
+
+.cta-content .section-title {
+    color: rgba(255, 255, 255, 0.8); /* Màu nhạt hơn */
+}
+
+.cta-content .cta-title {
+    font-size: 2em;
+    font-weight: 700;
+    color: #fff;
+    margin: 10px 0;
+}
+
+.cta-content .cta-description {
+    font-size: 1em;
+    color: #fff;
+    margin: 0;
+}
+
+.cta-action .hero-button {
+    background-color: #fff; /* Nút trắng */
+    color: #d32f2f; /* Chữ đỏ */
+}
+
+.cta-action .hero-button:hover {
+    background-color: #eee;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cta-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .cta-action {
+        margin-top: 30px;
+    }
+}
+.popup-overlay {
+    position: fixed; /* Hiển thị đè lên mọi thứ */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Lớp mờ màu đen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Đảm bảo nó nằm trên Navbar */
+}
+
+.popup-modal {
+    background-color: #1e0101; /* Nền modal */
+    border: 1px solid #d32f2f; /* Viền đỏ */
+    border-radius: 10px;
+    padding: 40px 50px;
+    width: 90%;
+    max-width: 700px; /* Chiều rộng tối đa */
+    position: relative;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-out; /* Hiệu ứng xuất hiện */
+}
+
+/* Nút X để đóng */
+.popup-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 2.5em;
+    font-weight: 300;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.popup-close-btn:hover {
+    color: #fff;
+}
+
+.popup-content .section-title {
+    color: #d32f2f;
+    font-size: 1em;
+}
+
+.popup-content .popup-title {
+    font-size: 1.8em;
+    font-weight: 900;
+    color: #fff;
+    margin: 20px 0;
+}
+
+.popup-content .popup-description {
+    font-size: 1em;
+    color: #ccc;
+    margin-bottom: 60px;
+}
+
+/* Tái sử dụng .hero-button cho nút Đăng ký */
+.popup-content .hero-button {
+    display: inline-block;
+}
+
+/* Hiệu ứng xuất hiện */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+.show-all-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.show-all-button {
+    background-color: transparent;
+    border: 2px solid #555;
+    color: #ccc;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.show-all-button:hover {
+    background-color: #d32f2f;
+    border-color: #d32f2f;
+    color: #fff;
+}   

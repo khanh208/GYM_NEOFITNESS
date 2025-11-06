@@ -1,0 +1,165 @@
+/* src/pages/public/PackageDetailPage.css */
+
+.package-detail-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px 5%;
+    color: #fff;
+}
+
+.package-detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Thông tin 2 phần, Form 1 phần */
+    gap: 50px;
+}
+
+/* --- Cột Thông tin (Bên trái) --- */
+.package-info-type {
+    font-size: 1em;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+.package-info-title {
+    font-size: 2.8em;
+    font-weight: 700;
+    color: #fff;
+    margin: 5px 0 15px 0;
+}
+
+.package-info-badge {
+    background-color: #d32f2f;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.package-info-description {
+    font-size: 1.1em;
+    color: #ccc;
+    line-height: 1.7;
+    margin: 25px 0;
+}
+
+.package-info-price {
+    margin-bottom: 25px;
+}
+
+.package-info-price .final-price {
+    font-size: 2.5em;
+    font-weight: 800;
+    color: #d32f2f; /* Màu đỏ */
+}
+
+.package-info-price .original-price {
+    font-size: 1.5em;
+    color: #777;
+    text-decoration: line-through;
+    margin-left: 15px;
+}
+
+.package-info-features {
+    list-style: none;
+    padding: 0;
+    color: #ccc;
+}
+.package-info-features li {
+    margin-bottom: 10px;
+    padding-left: 25px;
+    position: relative;
+}
+.package-info-features li::before {
+    content: '✓';
+    color: #d32f2f;
+    position: absolute;
+    left: 0;
+    font-weight: bold;
+}
+
+/* --- Cột Form (Bên phải) --- */
+.package-register-form {
+    background-color: #1a1a1a;
+    padding: 30px;
+    border-radius: 10px;
+    height: fit-content; /* Chỉ cao bằng nội dung */
+    position: sticky; /* Bám theo khi cuộn */
+    top: 120px; /* Cách Navbar (80px) + 40px */
+}
+
+.package-register-form h3 {
+    font-size: 1.5em;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+/* Tái sử dụng CSS từ ContactPage */
+.package-register-form .form-group-contact {
+    margin-bottom: 20px;
+}
+.package-register-form .form-group-contact label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+.package-register-form .form-group-contact input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #444;
+    background-color: #2c2c2c;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 1em;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.package-register-form .hero-button {
+    width: 100%;
+    margin-top: 10px;
+}
+.package-register-form .contact-success-message,
+.package-register-form .contact-error-message {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.package-register-form .contact-success-message {
+    color: #4CAF50;
+}
+.package-register-form .contact-error-message {
+    color: #f44336;
+}
+
+
+/* Responsive */
+@media (max-width: 992px) {
+    .package-detail-grid {
+        grid-template-columns: 1fr; /* Xếp chồng 2 cột */
+    }
+    .package-register-form {
+        position: static; /* Hủy sticky */
+        margin-top: 40px;
+    }
+}
+.form-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #888;
+    margin: 30px 0;
+}
+.form-divider::before,
+.form-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #444;
+}
+.form-divider span {
+    padding: 0 10px;
+    font-weight: bold;
+}

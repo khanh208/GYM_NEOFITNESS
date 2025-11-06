@@ -1,0 +1,153 @@
+/* src/components/PublicLayout.css */
+.public-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #121212; /* Nền đen tuyền */
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.public-header {
+    width: 100%;
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #333;
+    /* Tăng padding dọc trở lại một chút */
+    padding: 10px 5%; 
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    max-width: 1200px;
+    margin: 0 auto;
+    /* Tăng chiều cao chung của navbar */
+    height: 70px; 
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    background-color: transparent !important; 
+    border: none !important;
+}
+
+.navbar-logo img {
+    /* === TĂNG KÍCH THƯỚC LOGO Ở ĐÂY === */
+    height: 150px; /* Thử kích thước này (hoặc 65px) */
+    width: auto; 
+    display: block;
+}
+
+
+.navbar-menu {
+    display: flex;
+    gap: 25px;
+    align-items: center; 
+}
+
+.navbar-menu a {
+    color: #ccc;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    /* Chỉnh padding cho cân */
+    padding: 10px 0; 
+}
+
+.navbar-menu a:hover {
+    color: #d32f2f;
+}
+
+.navbar-actions {
+    display: flex;
+    align-items: center; 
+    gap: 10px;
+}
+
+/* CSS chung cho các nút */
+.navbar-actions .btn-login,
+.navbar-actions .btn-logout {
+    background-color: #d32f2f;
+    color: #fff;
+    border: none;
+    /* Chỉnh padding cho cân với menu */
+    padding: 8px 20px; 
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    text-decoration: none; 
+    display: inline-block;
+}
+
+/* Nút Đăng xuất */
+.navbar-actions .btn-logout {
+    background-color: #555;
+}
+
+.navbar-actions .btn-login:hover {
+    background-color: #e53935;
+}
+.navbar-actions .btn-logout:hover {
+     background-color: #777;
+}
+
+
+.public-content {
+    flex: 1; /* Đảm bảo nội dung chính lấp đầy không gian */
+}
+
+.public-footer {
+    background-color: #1a1a1a;
+    border-top: 1px solid #333;
+    padding: 20px 5%;
+    margin-top: auto; /* Đẩy footer xuống cuối */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    color: #888;
+}
+
+.public-footer nav {
+    display: flex;
+    gap: 15px;
+}
+
+.public-footer nav a {
+    color: #888;
+    text-decoration: none;
+}
+
+.public-footer nav a:hover {
+    color: #d32f2f;
+}
+.navbar-actions .btn-book-now {
+    background-color: #d32f2f; /* Màu đỏ */
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    margin-right: 10px; /* Khoảng cách với nút Đăng nhập */
+}
+.navbar-actions .btn-book-now:hover {
+    background-color: #e53935;
+}
+
+/* Đổi .btn-login (nếu chưa có) thành màu xám/thứ cấp */
+.navbar-actions .btn-login {
+    background-color: #555; /* Đổi thành màu xám */
+    /* ... (các style khác giữ nguyên) ... */
+}
+.navbar-actions .btn-login:hover {
+    background-color: #777;
+}

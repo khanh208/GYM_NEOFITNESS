@@ -1,0 +1,118 @@
+/* src/pages/public/ContactPage.css */
+.contact-page-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 5%;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Form 2 phần, Info 1 phần */
+    gap: 50px;
+}
+
+.contact-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+/* --- Cột Form --- */
+.contact-form-section {
+    background-color: #1a1a1a;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group-contact {
+    flex: 1; /* Hai cột bằng nhau */
+}
+
+.form-group-contact {
+    margin-bottom: 20px;
+}
+
+.form-group-contact label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.form-group-contact input,
+.form-group-contact textarea,
+.form-group-contact select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #444;
+    background-color: #2c2c2c;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 1em;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-group-contact textarea {
+    resize: vertical;
+}
+
+.contact-submit-btn {
+    width: 100%; /* Nút bấm full chiều rộng */
+    margin-top: 10px;
+}
+
+.contact-success-message {
+    color: #4CAF50; /* Xanh lá */
+    font-weight: bold;
+    text-align: center;
+}
+.contact-error-message {
+    color: #f44336; /* Đỏ */
+    font-weight: bold;
+    text-align: center;
+}
+
+/* --- Cột Info --- */
+.contact-info-section {
+    color: #ccc;
+    line-height: 1.7;
+}
+
+.contact-info-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.contact-info-section li {
+    margin-bottom: 12px;
+}
+
+.contact-info-section li strong {
+    color: #fff;
+    min-width: 80px;
+    display: inline-block;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .contact-grid {
+        grid-template-columns: 1fr; /* Xếp chồng 2 cột */
+    }
+    .contact-info-section {
+        margin-top: 40px; /* Thêm khoảng cách khi xếp chồng */
+    }
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column; /* Xếp chồng các ô input trong form */
+        gap: 0;
+    }
+}

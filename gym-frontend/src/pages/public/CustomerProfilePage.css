@@ -1,0 +1,145 @@
+/* src/pages/public/CustomerProfilePage.css */
+
+.customer-profile-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px 5%;
+    color: #fff;
+}
+
+.profile-title {
+    font-size: 2.5em;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.profile-subtitle {
+    font-size: 1.1em;
+    color: #ccc;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.no-packages {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    margin-top: 30px;
+}
+
+.no-packages p {
+    font-size: 1.2em;
+    margin-bottom: 25px;
+}
+
+/* Tái sử dụng hero-button */
+.no-packages .hero-button {
+    text-decoration: none;
+    display: inline-block;
+    background-color: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.no-packages .hero-button:hover {
+    background-color: #e53935;
+}
+
+.my-packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.package-card {
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #333;
+}
+
+.package-card.active {
+    border-left: 5px solid #4CAF50; /* Xanh lá */
+}
+.package-card.expired {
+    border-left: 5px solid #FFC107; /* Vàng */
+    opacity: 0.7;
+}
+.package-card.used {
+    border-left: 5px solid #d32f2f; /* Đỏ */
+    opacity: 0.7;
+}
+
+
+.package-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #333;
+    padding-bottom: 10px;
+}
+
+.package-name {
+    font-size: 1.6em;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.package-status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.package-status.active {
+    background-color: #4CAF50;
+}
+.package-status.expired {
+    background-color: #FFC107;
+    color: #333; /* Chữ đen trên nền vàng */
+}
+.package-status.used {
+    background-color: #d32f2f;
+}
+
+
+.package-details p {
+    font-size: 1em;
+    color: #ccc;
+    margin-bottom: 8px;
+}
+
+.package-details p strong {
+    color: #fff;
+    min-width: 100px; /* Đảm bảo căn chỉnh */
+    display: inline-block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-title {
+        font-size: 2em;
+    }
+    .package-card {
+        padding: 20px;
+    }
+    .package-name {
+        font-size: 1.4em;
+    }
+}
