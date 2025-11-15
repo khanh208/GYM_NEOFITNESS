@@ -210,3 +210,26 @@ body {
 .main-content form textarea {
     min-height: 80px;
 }
+.package-status {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #fff;
+    text-transform: capitalize;
+}
+
+.package-status.active {
+    background-color: #28a745; /* Màu xanh lá */
+}
+.package-status.pending {
+    background-color: #ffc107; /* Màu vàng */
+    color: #333;
+}
+.package-status.cancelled {
+    background-color: #dc3545; /* Màu đỏ */
+}
+.package-status.expired,
+.package-status.used {
+    background-color: #6c757d; /* Màu xám */
+}

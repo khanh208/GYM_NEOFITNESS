@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import './CustomerProfilePage.css'; // Sẽ tạo CSS sau
-// Import CSS cho popup (nếu bạn đã tạo file CSS chung)
-// Hoặc sao chép CSS .popup-overlay, .popup-modal từ HomePage.css vào CustomerProfilePage.css
+import { QRCodeSVG } from 'qrcode.react'; // Import QR Code
+import './CustomerProfilePage.css';
+// Bạn cần đảm bảo đã copy CSS cho popup vào file CustomerProfilePage.css
+// Ví dụ: .popup-overlay, .popup-modal, .popup-close-btn
 
 function CustomerProfilePage() {
     const [myPackages, setMyPackages] = useState([]);
@@ -12,14 +13,17 @@ function CustomerProfilePage() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    // --- State cho Popup Hủy ---
+    // State cho Popup Hủy
     const [cancelReason, setCancelReason] = useState('');
-    const [showCancelPopup, setShowCancelPopup] = useState(null); // Lưu gkh_id của gói muốn hủy
+    const [showCancelPopup, setShowCancelPopup] = useState(null); // Lưu gkh_id
     const [formError, setFormError] = useState('');
     const [formSuccess, setFormSuccess] = useState('');
-    // --- LỖI Ở ĐÂY: Thêm state formLoading ---
+    // --- KHAI BÁO STATE CÒN THIẾU ---
     const [formLoading, setFormLoading] = useState(false);
     // --- KẾT THÚC SỬA ---
+    
+    // State để lưu khach_id cho QR Code
+    const [khachId, setKhachId] = useState(null);
 
     // Hàm format tiền tệ
     const formatCurrency = (amount) => {
@@ -48,6 +52,12 @@ function CustomerProfilePage() {
                 }
             });
             setMyPackages(response.data);
+
+            // Lấy khach_id từ gói đầu tiên để tạo mã QR
+            if (response.data.length > 0) {
+                setKhachId(response.data[0].khach_id);
+            }
+
         } catch (err) {
             setError(err.response?.data?.message || 'Không thể tải gói tập của bạn.');
             console.error("Fetch my packages error:", err);
@@ -62,7 +72,7 @@ function CustomerProfilePage() {
     // Chạy fetch khi component mount
     useEffect(() => {
         fetchMyPackages();
-    }, [navigate]); // Thêm navigate vào dependency array (theo khuyến cáo của ESLint)
+    }, [navigate]); // Thêm navigate vào dependency array
 
     // Hàm xử lý gửi yêu cầu hủy
     const handleRequestCancellation = async (e) => {
@@ -93,13 +103,13 @@ function CustomerProfilePage() {
         };
 
         try {
+            // API contacts cũng cần token nếu route được bảo vệ
             await axios.post('http://localhost:3000/api/contacts', contactData, {
-                 headers: { 'Authorization': `Bearer ${token}` } // Gửi kèm token
+                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setFormSuccess('Gửi yêu cầu hủy thành công! Admin sẽ liên hệ với bạn để xử lý.');
             setShowCancelPopup(null); // Đóng popup
             setCancelReason('');
-            // Không cần fetch lại data vì gói chưa bị hủy ngay
         } catch (err) {
             setFormError('Gửi yêu cầu thất bại. Vui lòng thử lại.');
         } finally {
@@ -113,12 +123,21 @@ function CustomerProfilePage() {
     return (
         <div className="customer-profile-container">
             <h1 className="profile-title">Hồ sơ của tôi</h1>
+
+            {/* --- MÃ QR --- */}
+            <div className="qr-code-container" style={{ textAlign: 'center', backgroundColor: 'white', padding: '20px', borderRadius: '10px', width: 'fit-content', margin: '20px auto', border: '5px solid #d32f2f' }}>
+                <p style={{ color: 'black', margin: 0, fontWeight: 'bold' }}>Đưa mã này cho lễ tân để Check-in</p>
+                {khachId ? (
+                     <QRCodeSVG value={JSON.stringify({ khach_id: khachId })} size={200} />
+                ) : (
+                    <p style={{ color: 'red' }}>{loading ? 'Đang tải mã QR...' : 'Không tìm thấy ID Khách hàng.'}</p>
+                )}
+            </div>
+            {/* --- KẾT THÚC MÃ QR --- */}
+
             <p className="profile-subtitle">Tổng quan các gói tập bạn đã mua tại NeoFitness.</p>
 
             {/* POPUP HỦY GÓI */}
-            {/* Lưu ý: CSS cho popup (.popup-overlay, .popup-modal, .popup-close-btn) 
-                cần được copy từ HomePage.css hoặc tạo file CSS chung.
-            */}
             {showCancelPopup && (
                 <div className="popup-overlay" onClick={() => setShowCancelPopup(null)}>
                     <div className="popup-modal" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: '#1e1e1e', color: 'white', maxWidth: '500px' }}>
@@ -126,7 +145,6 @@ function CustomerProfilePage() {
                         <h3>Yêu cầu Hủy Gói</h3>
                         <p>Vui lòng cho biết lý do bạn muốn hủy gói. Admin sẽ xem xét và liên hệ lại với bạn.</p>
                         <form onSubmit={handleRequestCancellation}>
-                            {/* Tái sử dụng class từ ContactPage/BookingPage */}
                             <div className="form-group-contact"> 
                                 <label htmlFor="cancelReason">Lý do hủy (*):</label>
                                 <textarea 

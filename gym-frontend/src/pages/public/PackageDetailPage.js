@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import './PackageDetailPage.css'; // Sẽ tạo file CSS sau
+import './PackageDetailPage.css';
 
 function PackageDetailPage() {
     const { id } = useParams(); // gia_id
@@ -11,42 +11,49 @@ function PackageDetailPage() {
     const [pricePackage, setPricePackage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    
+    // --- State dùng chung ---
+    const [activationDate, setActivationDate] = useState(''); // State cho ngày kích hoạt
 
     // State cho form đăng ký tư vấn
     const [formData, setFormData] = useState({ ho_ten: '', so_dien_thoai: '', email: '' });
     const [formLoading, setFormLoading] = useState(false);
+    
+    // State cho Lỗi/Thành công (dùng chung cho cả 3 luồng)
     const [formError, setFormError] = useState('');
     const [formSuccess, setFormSuccess] = useState('');
 
     // State cho luồng Mua Ngay / Gói Thử
     const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
-    const [actionLoading, setActionLoading] = useState(false); // Đổi tên từ buyNowLoading
+    const [actionLoading, setActionLoading] = useState(false);
     const [isFreePackage, setIsFreePackage] = useState(false);
+
+    // Hàm lấy ngày hôm nay (YYYY-MM-DD)
+    const getTodayString = () => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
 
     // Fetch dữ liệu chi tiết của gói giá và kiểm tra đăng nhập
     useEffect(() => {
-        // 1. Kiểm tra trạng thái đăng nhập
         const token = localStorage.getItem('accessToken');
         const role = localStorage.getItem('userRole');
         if (token && role === 'customer') {
             setIsCustomerLoggedIn(true);
         }
 
-        // 2. Fetch chi tiết gói
         const fetchPackageDetail = async () => {
             setLoading(true);
             try {
-                // Backend API GET /api/pricings/:id đã được nâng cấp để JOIN và tính toán
                 const response = await axios.get(`http://localhost:3000/api/pricings/${id}`);
                 setPricePackage(response.data);
                 
-                // --- KIỂM TRA GÓI MIỄN PHÍ ---
-                // Dựa trên giá cuối cùng đã tính (Backend trả về là số)
                 if (parseFloat(response.data.gia_goc) === 0) {
                     setIsFreePackage(true);
                 }
-                // --- KẾT THÚC KIỂM TRA ---
-
             } catch (err) {
                 setError('Không thể tải chi tiết gói tập.');
                 console.error("Fetch package detail error:", err);
@@ -65,14 +72,19 @@ function PackageDetailPage() {
     // --- HÀM SUBMIT TƯ VẤN (Gói có phí) ---
     const handleSubmitContactForm = async (e) => {
         e.preventDefault();
+        // Kiểm tra ngày kích hoạt cho luồng tư vấn
+        if (!activationDate) {
+            setFormError('Vui lòng chọn ngày bạn muốn kích hoạt gói tập.');
+            return;
+        }
         setFormLoading(true);
         setFormError('');
         setFormSuccess('');
 
-        // Chuẩn bị nội dung gửi đi
         const noiDungDangKy = `
             KHÁCH HÀNG ĐĂNG KÝ TƯ VẤN GÓI TẬP:
-            - Gói: ${pricePackage.ten_goi_tap} (ID: ${pricePackage.gia_id})
+            - Gói: ${pricePackage.ten_goi_tap_full || pricePackage.ten_goi_tap} (ID: ${pricePackage.gia_id})
+            - Ngày muốn kích hoạt: ${activationDate}
             - Giá: ${formatCurrency(pricePackage.gia_cuoi_cung)} VND
         `;
 
@@ -86,7 +98,8 @@ function PackageDetailPage() {
         try {
             await axios.post('http://localhost:3000/api/contacts', contactData);
             setFormSuccess('Đăng ký tư vấn thành công! Chúng tôi sẽ liên hệ với bạn ngay.');
-            setFormData({ ho_ten: '', so_dien_thoai: '', email: '' }); // Reset form
+            setFormData({ ho_ten: '', so_dien_thoai: '', email: '' });
+            setActivationDate(''); // Reset ngày
         } catch (err) {
             setFormError(err.response?.data?.message || 'Gửi đăng ký thất bại. Vui lòng thử lại.');
         } finally {
@@ -96,10 +109,15 @@ function PackageDetailPage() {
     
     // --- HÀM XỬ LÝ NÚT CHÍNH (Mua ngay HOẶC Nhận miễn phí) ---
     const handleMainAction = async () => {
-        // 1. Kiểm tra đăng nhập
         if (!isCustomerLoggedIn) {
             alert("Vui lòng đăng nhập để thực hiện thao tác này.");
             navigate('/login', { state: { from: `/goi-tap/${id}` } }); 
+            return;
+        }
+
+        // Kiểm tra ngày kích hoạt
+        if (!activationDate) {
+            setFormError('Vui lòng chọn ngày bạn muốn kích hoạt gói tập.');
             return;
         }
 
@@ -109,18 +127,16 @@ function PackageDetailPage() {
         const token = localStorage.getItem('accessToken');
 
         if (isFreePackage) {
-            // --- LUỒNG ĐĂNG KÝ GÓI THỬ (MỚI) ---
+            // --- LUỒNG ĐĂNG KÝ GÓI THỬ ---
             try {
-                // Gọi API mới để tự động kích hoạt gói
                 const response = await axios.post(
                     'http://localhost:3000/api/customer/register-free-trial',
-                    { gia_id: id }, // Chỉ cần gửi gia_id
+                    { gia_id: id, ngay_kich_hoat: activationDate }, // Gửi kèm ngày
                     { headers: { 'Authorization': `Bearer ${token}` } }
                 );
-                // Hiển thị thông báo thành công từ backend
                 setFormSuccess(response.data.message + " Bạn có thể xem trong 'Hồ sơ của tôi'.");
+                setActivationDate(''); // Reset ngày
             } catch (err) {
-                // Hiển thị lỗi (ví dụ: "Bạn đã đăng ký gói thử này rồi.")
                 setFormError(err.response?.data?.message || 'Đăng ký gói thử thất bại.');
                 console.error("Free trial registration error:", err.response?.data || err.message);
             } finally {
@@ -132,7 +148,7 @@ function PackageDetailPage() {
             try {
                 const response = await axios.post(
                     'http://localhost:3000/api/payments',
-                    { gia_id: id },
+                    { gia_id: id, ngay_kich_hoat: activationDate }, // Gửi kèm ngày
                     { headers: { 'Authorization': `Bearer ${token}` } }
                 );
                 if (response.data.payUrl) {
@@ -147,7 +163,6 @@ function PackageDetailPage() {
         }
     };
     
-    // Hàm format tiền tệ
     const formatCurrency = (amount) => {
         if (amount === null || amount === undefined) return '';
         const numericAmount = Number(amount);
@@ -166,12 +181,10 @@ function PackageDetailPage() {
                 {/* --- CỘT THÔNG TIN GÓI TẬP --- */}
                 <div className="package-info">
                     <span className="package-info-type">{pricePackage.thoi_han}</span>
-                    {/* Sử dụng ten_goi_tap_full hoặc ten_goi_tap từ backend */}
                     <h1 className="package-info-title">{pricePackage.ten_goi_tap_full || pricePackage.ten_goi_tap}</h1>
                     {pricePackage.khuyen_mai_id && (
                         <span className="package-info-badge">Đang giảm {pricePackage.giam_gia_phantram}%</span>
                     )}
-                    {/* Sử dụng mo_ta_chi_tiet từ backend */}
                     <p className="package-info-description">
                         {pricePackage.mo_ta_chi_tiet || "Hiện chưa có mô tả chi tiết cho gói tập này."}
                     </p>
@@ -182,7 +195,6 @@ function PackageDetailPage() {
                         )}
                     </div>
                     <ul className="package-info-features">
-                        {/* Hiển thị số buổi nếu có */}
                         {pricePackage.ca_buoi > 0 && (
                             <li>{pricePackage.ca_buoi} buổi tập 1:1</li>
                         )}
@@ -191,18 +203,33 @@ function PackageDetailPage() {
                     </ul>
                 </div>
 
-                {/* --- CỘT FORM ĐĂNG KÝ (ĐÃ CẬP NHẬT LOGIC) --- */}
+                {/* --- CỘT FORM ĐĂNG KÝ --- */}
                 <div className="package-register-form">
                     
                     {/* Hiển thị lỗi chung (nếu có) */}
                     {formSuccess && <p className="contact-success-message">{formSuccess}</p>}
                     {formError && <p className="contact-error-message">{formError}</p>}
 
+                    {/* --- Ô CHỌN NGÀY (DÙNG CHUNG) --- */}
+                    <div className="form-group-contact">
+                        <label htmlFor="activationDate">Chọn ngày kích hoạt *</label>
+                        <input 
+                            type="date" 
+                            id="activationDate" 
+                            name="activationDate"
+                            value={activationDate}
+                            onChange={(e) => setActivationDate(e.target.value)}
+                            min={getTodayString()} // Không cho chọn ngày quá khứ
+                            required
+                        />
+                    </div>
+                    {/* --- KẾT THÚC Ô CHỌN NGÀY --- */}
+
                     {isFreePackage ? (
                         
-                        // --- LUỒNG 1: GÓI MIỄN PHÍ (TẬP THỬ) ---
+                        // --- LUỒNG 1: GÓI MIỄN PHÍ ---
                         <>
-                            <h3>Đăng ký gói tập thử</h3>
+                            <h3 style={{marginTop: '20px'}}>Đăng ký gói tập thử</h3>
                             <p>Gói tập này miễn phí. Nhấn nút bên dưới để kích hoạt gói vào hồ sơ của bạn.</p>
                             <button 
                                 className="hero-button" 
@@ -219,9 +246,9 @@ function PackageDetailPage() {
 
                     ) : (
 
-                        // --- LUỒNG 2: GÓI CÓ PHÍ (TƯ VẤN / MUA NGAY) ---
+                        // --- LUỒNG 2: GÓI CÓ PHÍ ---
                         <>
-                            <h3>Thanh toán trực tiếp</h3>
+                            <h3 style={{marginTop: '20px'}}>Thanh toán trực tiếp</h3>
                             <p>Dành cho khách hàng đã có tài khoản. Thanh toán qua Momo và kích hoạt gói ngay.</p>
                             <button 
                                 className="hero-button" 
@@ -237,7 +264,7 @@ function PackageDetailPage() {
                             </div>
 
                             <h3>Đăng ký tư vấn (Miễn phí)</h3>
-                            <p>Dành cho khách hàng mới. Để lại thông tin, chúng tôi sẽ gọi lại cho bạn.</p>
+                            <p>Để lại thông tin, chúng tôi sẽ gọi lại cho bạn.</p>
                             <form onSubmit={handleSubmitContactForm}>
                                 <div className="form-group-contact">
                                     <label htmlFor="ho_ten">Họ & tên *</label>

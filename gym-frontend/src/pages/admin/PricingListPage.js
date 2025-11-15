@@ -94,6 +94,7 @@ function PricingListPage() {
                             <th>ID</th>
                             <th>Gói Tập</th>
                             <th>Thời hạn</th>
+                            <th>Số buổi</th>
                             <th>Giá Gốc</th>
                             <th>Khuyến Mãi</th>
                             <th>Giá Cuối Cùng</th>
@@ -107,6 +108,7 @@ function PricingListPage() {
                                 {/* Gọi hàm getPackageName */}
                                 <td>{getPackageName(price.goi_tap_id)}</td>
                                 <td>{price.thoi_han || '-'}</td>
+                                <td>{price.ca_buoi || '-'}</td>
                                 <td>{formatCurrency(price.gia)}</td> {/* price.gia đã có sẵn từ API pricings */}
                                 <td>{price.ten_khuyen_mai || '-'} ({price.giam_gia_phantram || 0}%)</td>
                                 <td>{formatCurrency(price.gia_cuoi_cung)}</td>

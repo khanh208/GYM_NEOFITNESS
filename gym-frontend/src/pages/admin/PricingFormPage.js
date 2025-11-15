@@ -1,85 +1,79 @@
-// src/pages/PricingFormPage.js
+// src/pages/admin/PricingFormPage.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 
 function PricingFormPage() {
-    // Lấy ID từ URL (sẽ là undefined nếu route là /new)
     const { id } = useParams();
     const navigate = useNavigate();
-    // Xác định xem đang sửa hay tạo mới
     const isEditing = id !== undefined && id !== 'new';
 
-    // State cho dữ liệu form
+    // --- SỬA STATE: Thêm 'ca_buoi' ---
     const [formData, setFormData] = useState({
         goi_tap_id: '',
         gia: '',
         thoi_han: '',
-        khuyen_mai_id: '' // Giá trị rỗng '' sẽ được chuyển thành null khi gửi
+        ca_buoi: '', // <-- THÊM DÒNG NÀY
+        khuyen_mai_id: ''
     });
-    // State cho danh sách dropdown
+    // --- KẾT THÚC SỬA ---
+
     const [packages, setPackages] = useState([]);
     const [promotions, setPromotions] = useState([]);
-    // State cho loading khi submit
     const [loading, setLoading] = useState(false);
-    // State cho loading ban đầu (fetch dropdowns và data edit)
     const [initialLoading, setInitialLoading] = useState(true);
-    // State cho lỗi
     const [error, setError] = useState('');
 
-    // Fetch data cho dropdowns và data hiện tại (nếu sửa)
     useEffect(() => {
         const fetchData = async () => {
             setError('');
-            const token = localStorage.getItem('accessToken'); // Lấy token
+            const token = localStorage.getItem('accessToken');
             try {
-                // Sử dụng Promise.all để fetch song song
                 const [pkgRes, promoRes] = await Promise.all([
-                    axios.get('http://localhost:3000/api/packages'), // Lấy gói tập
-                    axios.get('http://localhost:3000/api/promotions') // Lấy khuyến mãi
+                    axios.get('http://localhost:3000/api/packages'),
+                    axios.get('http://localhost:3000/api/promotions')
                 ]);
                 setPackages(pkgRes.data);
                 setPromotions(promoRes.data);
 
-                // Nếu đang sửa, fetch dữ liệu giá hiện tại
                 if (isEditing) {
-                    console.log(`Fetching data for pricing ID: ${id}`); // Debug log
+                    console.log(`Fetching data for pricing ID: ${id}`);
                     const priceRes = await axios.get(`http://localhost:3000/api/pricings/${id}`, {
-                         // headers: { 'Authorization': `Bearer ${token}` } // Bỏ comment nếu GET /:id cần token
+                       // headers: { 'Authorization': `Bearer ${token}` } // Bỏ comment nếu GET /:id cần token
                     });
                     const data = priceRes.data;
-                    // Cập nhật state formData
+                    
+                    // --- SỬA STATE: Thêm 'ca_buoi' vào fetch ---
                     setFormData({
                         goi_tap_id: data.goi_tap_id || '',
-                        gia: data.gia || '',
+                        gia: data.gia_goc || '', // Dùng gia_goc (giá gốc) để sửa
                         thoi_han: data.thoi_han || '',
-                        khuyen_mai_id: data.khuyen_mai_id || '' // Dùng '' cho select, sẽ thành null khi gửi
+                        ca_buoi: data.ca_buoi || '', // <-- THÊM DÒNG NÀY
+                        khuyen_mai_id: data.khuyen_mai_id || ''
                     });
+                    // --- KẾT THÚC SỬA ---
                 }
             } catch (err) {
                 setError('Không thể tải dữ liệu cần thiết (Gói tập/Khuyến mãi/Giá).');
                 console.error("Fetch error:", err);
             } finally {
-                setInitialLoading(false); // Kết thúc loading ban đầu
+                setInitialLoading(false);
             }
         };
         fetchData();
-    }, [id, isEditing]); // Dependencies
+    }, [id, isEditing]);
 
-    // Xử lý thay đổi input
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevData => ({
             ...prevData,
-            // Đảm bảo giá trị là rỗng '' nếu người dùng chọn "Không có"
             [name]: value
         }));
     };
 
-    // Xử lý submit form
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true); // Bắt đầu loading submit
+        setLoading(true);
         setError('');
         const token = localStorage.getItem('accessToken');
         if (!token) {
@@ -91,13 +85,16 @@ function PricingFormPage() {
         const url = isEditing ? `http://localhost:3000/api/pricings/${id}` : 'http://localhost:3000/api/pricings';
         const method = isEditing ? 'put' : 'post';
 
-        // Chuẩn bị dữ liệu gửi đi
+        // --- SỬA DATA GỬI ĐI: Thêm 'ca_buoi' ---
         const dataToSend = {
-            ...formData,
-            gia: parseFloat(formData.gia), // Đảm bảo giá là số
-            // Chuyển khuyen_mai_id rỗng thành null
+            goi_tap_id: formData.goi_tap_id,
+            gia: parseFloat(formData.gia),
+            thoi_han: formData.thoi_han || null, // Gửi null nếu rỗng
+            // Chuyển rỗng thành null, nếu không rỗng thì chuyển thành số
+            ca_buoi: formData.ca_buoi === '' ? null : parseInt(formData.ca_buoi, 10), 
             khuyen_mai_id: formData.khuyen_mai_id === '' ? null : formData.khuyen_mai_id
         };
+        // --- KẾT THÚC SỬA ---
 
         try {
             await axios({
@@ -106,21 +103,19 @@ function PricingFormPage() {
                 data: dataToSend,
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            navigate('/admin/pricings'); // Quay về trang danh sách
+            navigate('/admin/pricings');
         } catch (err) {
              setError(err.response?.data?.message || `Lỗi khi ${isEditing ? 'cập nhật' : 'tạo'} mức giá.`);
-             console.error("Submit error:", err.response?.data || err.message); // Log lỗi chi tiết hơn
+             console.error("Submit error:", err.response?.data || err.message);
         } finally {
-            setLoading(false); // Kết thúc loading submit
+            setLoading(false);
         }
     };
 
-    // Hiển thị loading khi fetch data ban đầu
      if (initialLoading) {
         return <p>Đang tải dữ liệu...</p>;
     }
 
-    // Giao diện form
     return (
         <div>
             <h2>{isEditing ? 'Chỉnh sửa Mức Giá' : 'Tạo Mức Giá mới'}</h2>
@@ -138,11 +133,35 @@ function PricingFormPage() {
                         ))}
                     </select>
                 </div>
-                {/* Thời hạn */}
-                <div>
-                    <label>Thời hạn (Ví dụ: 1 tháng, 12 buổi): </label>
-                    <input type="text" name="thoi_han" value={formData.thoi_han || ''} onChange={handleChange} />
+
+                {/* --- SỬA JSX: Thêm ô "Số buổi" --- */}
+                <div className="form-row" style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+                    {/* Thời hạn */}
+                    <div style={{ flex: 1 }}>
+                        <label>Thời hạn (Ví dụ: 1 tháng, 30 ngày):</label>
+                        <input 
+                            type="text" 
+                            name="thoi_han" 
+                            value={formData.thoi_han || ''} 
+                            onChange={handleChange}
+                            placeholder="Bỏ trống nếu là gói theo buổi"
+                        />
+                    </div>
+                    {/* Số buổi */}
+                    <div style={{ flex: 1 }}>
+                        <label>Số buổi (Ví dụ: 12):</label>
+                        <input 
+                            type="number" 
+                            name="ca_buoi" 
+                            value={formData.ca_buoi || ''} 
+                            onChange={handleChange} 
+                            placeholder="Bỏ trống nếu là gói theo thời gian"
+                            min="0"
+                        />
+                    </div>
                 </div>
+                {/* --- KẾT THÚC SỬA --- */}
+
                 {/* Giá Gốc */}
                 <div>
                     <label>Giá Gốc (VND): </label>

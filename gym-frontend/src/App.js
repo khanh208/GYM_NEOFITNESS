@@ -45,6 +45,7 @@ import BookingPage from './pages/public/BookingPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import CustomerPackageListPage from './pages/admin/CustomerPackageListPage';
+import CheckInPage from './pages/admin/CheckInPage';
 
 // Trainer Pages
 import TrainerProfilePage from './pages/trainer/TrainerProfilePage';
@@ -168,6 +169,7 @@ function App() {
                     <Route path="gallery/new" element={<GalleryFormPage />} />
                     <Route path="gallery/:id/edit" element={<GalleryFormPage />} />
                     <Route path="customer-packages" element={<CustomerPackageListPage />} />
+                    <Route path="check-in" element={<CheckInPage />} />
                 </Route>
 
                 {/* === Trainer Protected Routes === */}
@@ -184,6 +186,7 @@ function App() {
                     <Route index element={<Navigate to="schedule" replace />} />
                     <Route path="schedule" element={<TrainerBookingListPage />} />
                     <Route path="profile" element={<TrainerProfilePage />} />
+                    <Route path="check-in" element={<CheckInPage />} />
                 </Route>
 
                 {/* === Redirects and Catch-all === */}

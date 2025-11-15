@@ -46,6 +46,7 @@ function MainLayout() {
                             <li><NavLink to={`${basePath}/contacts`}>Quản lý Liên hệ</NavLink></li>
                             <li><NavLink to={`${basePath}/gallery`}>Quản lý Gallery</NavLink></li>
                             <li><NavLink to="/admin/customer-packages">Quản lý Gói Đã Bán</NavLink></li>
+                            <li><NavLink to={`${basePath}/check-in`}>Quét Check-in</NavLink></li>
                         </>
                     )}
                     {/* Trainer Links */}
@@ -54,6 +55,7 @@ function MainLayout() {
                             {/* Use basePath correctly here */}
                             <li><NavLink to={`${basePath}/schedule`}>Lịch làm việc</NavLink></li>
                             <li><NavLink to={`${basePath}/profile`}>Hồ sơ cá nhân</NavLink></li>
+                            <li><NavLink to={`${basePath}/check-in`}>Quét Check-in</NavLink></li>
                         </>
                     )}
                 </ul>

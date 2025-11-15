@@ -24,6 +24,7 @@ const galleryRoutes = require('./routes/galleryRoutes');
 const { protect, authorize } = require('./middleware/authMiddleware');
 const uploadRoutes = require('./routes/uploadRoutes');
 const customerPackageRoutes = require('./routes/customerPackageRoutes');
+const checkInRoutes = require('./routes/checkInRoutes');
 
 
 
@@ -39,7 +40,7 @@ app.get('/api/customers/:customerId/payments', paymentController.getPaymentsByCu
 app.get('/api/branches/:branchId/trainers', trainerController.getTrainersByBranch);
 app.get('/api/customers/:customerId/bookings', bookingController.getBookingsByCustomer);
 app.get('/api/customers/:customerId/bookings', protect, authorize('admin', 'customer'), bookingController.getBookingsByCustomer);
-
+app.use('/api/check-in', checkInRoutes);
 
 
 

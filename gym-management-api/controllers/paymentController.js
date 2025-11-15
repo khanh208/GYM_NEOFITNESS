@@ -5,14 +5,17 @@ const crypto = require('crypto');
 
 /**
  * Tạo thanh toán MoMo
- * Body: { gia_id } (API sẽ tự lấy khach_id từ token)
+ * Body: { gia_id, ngay_kich_hoat }
  */
 const createPayment = async (req, res) => {
-    const { gia_id } = req.body; 
+    const { gia_id, ngay_kich_hoat } = req.body; 
     const tai_khoan_id = req.user.user_id; 
 
-    if (!gia_id) {
-        return res.status(400).json({ message: 'Vui lòng cung cấp gia_id.' });
+    if (!gia_id || !ngay_kich_hoat) {
+        return res.status(400).json({ message: 'Vui lòng cung cấp ID gói giá và Ngày mong muốn kích hoạt.' });
+    }
+    if (new Date(ngay_kich_hoat) < new Date().setHours(0, 0, 0, 0)) {
+         return res.status(400).json({ message: 'Ngày kích hoạt không thể là một ngày trong quá khứ.' });
     }
 
     try {
@@ -26,46 +29,33 @@ const createPayment = async (req, res) => {
         }
         const khach_id = customerProfile.rows[0].khach_id;
 
-        // --- SỬA LỖI: LẤY GIÁ VÀ TÍNH TOÁN KHUYẾN MÃI ---
-        // 1) Lấy giá VÀ KHUYẾN MÃI từ DB
+        // --- LẤY GIÁ VÀ TÍNH TOÁN KHUYẾN MÃI ---
         const priceQuery = `
-            SELECT
-                ggt.gia,
-                km.giam_gia_phantram,
-                km.ngay_bat_dau,
-                km.ngay_ket_thuc
+            SELECT ggt.gia, km.giam_gia_phantram, km.ngay_bat_dau, km.ngay_ket_thuc
             FROM gia_goi_tap ggt
             LEFT JOIN khuyen_mai km ON ggt.khuyen_mai_id = km.khuyen_mai_id
             WHERE ggt.gia_id = $1
         `;
         const priceResult = await db.query(priceQuery, [gia_id]);
-
         if (priceResult.rows.length === 0) {
             return res.status(404).json({ message: 'Không tìm thấy mức giá này.' });
         }
 
-        // 2) TÍNH TOÁN LẠI GIÁ CUỐI CÙNG (logic từ pricingController)
         const priceData = priceResult.rows[0];
         const now = new Date();
         const giaGoc = parseFloat(priceData.gia);
         let finalPrice = giaGoc;
-
         const discount = priceData.giam_gia_phantram;
         const startDate = priceData.ngay_bat_dau;
         const endDate = priceData.ngay_ket_thuc;
-
         const isDiscountActive = discount > 0 &&
                                  (!startDate || now >= new Date(startDate)) &&
                                  (!endDate || now <= new Date(endDate));
-
         if (isDiscountActive) {
             finalPrice = giaGoc * (1 - discount / 100);
         }
-
-        // 3) Sử dụng giá cuối cùng làm số tiền thanh toán
         const amount = Math.round(finalPrice);
-        // --- KẾT THÚC SỬA LỖI ---
-
+        // --- KẾT THÚC TÍNH GIÁ ---
 
         // 4) Chuẩn bị thông tin Momo
         const partnerCode = process.env.MOMO_PARTNER_CODE;
@@ -77,7 +67,8 @@ const createPayment = async (req, res) => {
         const redirectUrl = 'http://localhost:3001/payment-success';
         const ipnUrl      = `${process.env.PUBLIC_URL}/api/payments/momo-ipn`;
         const requestType = 'captureWallet';
-        const extraData   = Buffer.from(JSON.stringify({ khach_id, gia_id }), 'utf8').toString('base64');
+        // Gửi cả khach_id, gia_id, và ngay_kich_hoat
+        const extraData   = Buffer.from(JSON.stringify({ khach_id, gia_id, ngay_kich_hoat }), 'utf8').toString('base64');
         const lang        = 'vi';
 
         // 5) rawSignature
@@ -114,24 +105,27 @@ const createPayment = async (req, res) => {
     }
 };
 
-// --- HÀM XỬ LÝ IPN (ĐÃ NÂNG CẤP LOGIC XẾP HÀNG) ---
+/**
+ * IPN từ MoMo gọi về (POST)
+ */
 const handleMomoIPN = async (req, res) => {
     const body = req.body || {};
     console.log('[MOMO IPN] body:', body);
     const { amount, orderId, message, resultCode, extraData } = body;
     
-    let khach_id, gia_id;
+    let khach_id, gia_id, ngay_kich_hoat;
     try {
         const decoded = JSON.parse(Buffer.from(extraData, 'base64').toString('utf8') || '{}');
         khach_id = decoded.khach_id;
         gia_id = decoded.gia_id;
-        if (!khach_id || !gia_id) throw new Error('Missing khach_id or gia_id in extraData');
+        ngay_kich_hoat = decoded.ngay_kich_hoat; // Lấy ngày kích hoạt
+        if (!khach_id || !gia_id || !ngay_kich_hoat) { // Kiểm tra
+            throw new Error('Thiếu khach_id, gia_id, hoặc ngay_kich_hoat trong extraData');
+        }
     } catch (e) {
         console.error('[MOMO IPN] Lỗi giải mã extraData:', e.message, extraData);
         return res.status(400).send('Invalid extraData');
     }
-
-    // (TODO: Xác thực chữ ký Momo ở đây)
 
     if (Number(resultCode) === 0) { // Thanh toán thành công
         const transaction = await db.query('BEGIN');
@@ -154,11 +148,10 @@ const handleMomoIPN = async (req, res) => {
             );
             const tt_id = insertPaymentResult.rows[0].tt_id;
 
-            // --- LOGIC XẾP HÀNG GÓI TẬP ---
-            let newPackageStatus = 'active';
-            let activationDate = new Date(); // Kích hoạt ngay
-
-            // 3. Kiểm tra xem khách có gói nào khác đang 'active' không
+            // 3. Logic xếp hàng và kích hoạt
+            let newPackageStatus = 'pending';
+            let activationDate = new Date(ngay_kich_hoat);
+            
             const activeCheck = await db.query(
                 `SELECT ngay_het_han FROM goi_khach_hang 
                  WHERE khach_id = $1 AND trang_thai = 'active' AND ngay_het_han IS NOT NULL
@@ -167,18 +160,21 @@ const handleMomoIPN = async (req, res) => {
             );
 
             if (activeCheck.rows.length > 0) {
-                // Đã có gói active!
                 const lastExpiryDate = new Date(activeCheck.rows[0].ngay_het_han);
-                activationDate = new Date(lastExpiryDate.setDate(lastExpiryDate.getDate() + 1)); // Kích hoạt vào ngày sau khi gói cũ hết hạn
-                newPackageStatus = 'pending'; // Trạng thái: Chờ kích hoạt
-                console.log(`[MoMo IPN] Gói ${tt_id} sẽ ở trạng thái 'pending', kích hoạt vào ${activationDate}`);
+                if (activationDate <= lastExpiryDate) { 
+                    activationDate = new Date(lastExpiryDate.setDate(lastExpiryDate.getDate() + 1));
+                    console.log(`[MoMo IPN] Gói bị trùng, tự động dời ngày kích hoạt sang: ${activationDate}`);
+                }
+            } else {
+                if (activationDate <= new Date()) {
+                    activationDate = new Date();
+                    newPackageStatus = 'active';
+                }
             }
-            // --- KẾT THÚC LOGIC XẾP HÀNG ---
-
-            // 4. Tính toán ngày hết hạn (dựa trên ngày kích hoạt MỚI)
+            
+            // 4. Tính toán ngày hết hạn
             let ngay_het_han = null;
             let tong_so_buoi = ca_buoi;
-            
             if (thoi_han) {
                 const parts = thoi_han.toLowerCase().split(' ');
                 const value = parseInt(parts[0]);
@@ -229,10 +225,10 @@ const getAllPayments = async (req, res) => {
             SELECT 
                 tt.*, 
                 kh.ho_ten AS ten_khach_hang, 
-                gt.ten AS ten_goi_tap
+                g.ten AS ten_goi_tap -- Sửa: Lấy tên từ bảng goi_tap
             FROM thanh_toan tt
             JOIN khach_hang kh ON tt.khach_id = kh.khach_id
-            JOIN goi_tap gt ON tt.goi_tap_id = gt.goi_tap_id
+            JOIN goi_tap g ON tt.goi_tap_id = g.goi_tap_id -- Sửa: JOIN với goi_tap
             ORDER BY tt.ngay_tt DESC
         `;
         const { rows } = await db.query(query);
