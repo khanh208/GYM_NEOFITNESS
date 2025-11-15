@@ -50,25 +50,28 @@ const getBookingsByCustomer = async (req, res) => {
 
 // --- TẠO MỘT LỊCH HẸN MỚI (Cho Customer) ---
 const createBooking = async (req, res) => {
-    // Lấy thông tin từ body VÀ token
     const { gkh_id, dich_vu_id, chi_nhanh_id, hlv_id, thoi_gian } = req.body;
     const tai_khoan_id = req.user.user_id;
 
+    // Giả định mọi buổi tập kéo dài 60 phút
+    const DURATION_MINUTES = 60; 
+    
     if (!gkh_id || !dich_vu_id || !chi_nhanh_id || !thoi_gian) {
         return res.status(400).json({ message: 'Vui lòng chọn Gói tập, Dịch vụ, Chi nhánh và Thời gian.' });
     }
 
-    const bookingTime = new Date(thoi_gian);
+    const bookingStartTime = new Date(thoi_gian);
+    const bookingEndTime = new Date(bookingStartTime.getTime() + DURATION_MINUTES * 60000); 
 
     try {
-        // 1. Lấy khach_id
+        // 1. Lấy khach_id (Giữ nguyên)
         const customerProfile = await db.query('SELECT khach_id FROM khach_hang WHERE tai_khoan_id = $1', [tai_khoan_id]);
         if (customerProfile.rows.length === 0) {
             return res.status(404).json({ message: 'Không tìm thấy hồ sơ khách hàng.' });
         }
         const khach_id = customerProfile.rows[0].khach_id;
 
-        // 2. Lấy gói tập khách hàng chọn (gkh_id) VÀ KIỂM TRA
+        // 2. Lấy và Kiểm tra gói tập (gkh_id) (Giữ nguyên)
         const pkgResult = await db.query(
             'SELECT * FROM goi_khach_hang WHERE gkh_id = $1 AND khach_id = $2',
             [gkh_id, khach_id]
@@ -78,34 +81,38 @@ const createBooking = async (req, res) => {
         }
         const activePackage = pkgResult.rows[0];
 
-        // 3. KIỂM TRA GÓI TẬP
-        
-        // Check 1: Gói còn active không?
+        // 3. Kiểm tra Gói tập (Trạng thái, Ngày hết hạn, Số buổi) (Giữ nguyên)
         if (activePackage.trang_thai !== 'active') {
              return res.status(400).json({ message: `Đặt lịch thất bại. Gói tập này đã ${activePackage.trang_thai}.` });
         }
-        
-        // Check 2: Kiểm tra ngày hết hạn
-        if (activePackage.ngay_het_han) {
-            const expiryDate = new Date(activePackage.ngay_het_han);
-            if (bookingTime > expiryDate) {
-                return res.status(400).json({ message: `Đặt lịch thất bại. Gói tập của bạn đã hết hạn vào ngày ${expiryDate.toLocaleDateString('vi-VN')}.` });
-            }
+        if (activePackage.ngay_het_han && bookingTime > new Date(activePackage.ngay_het_han)) {
+            return res.status(400).json({ message: `Đặt lịch thất bại. Gói tập của bạn đã hết hạn.` });
+        }
+        if (activePackage.tong_so_buoi !== null && activePackage.so_buoi_da_tap >= activePackage.tong_so_buoi) {
+            return res.status(400).json({ message: `Đặt lịch thất bại. Bạn đã sử dụng hết ${activePackage.tong_so_buoi} buổi.` });
         }
         
-        // Check 3: Kiểm tra số buổi (nếu là gói theo buổi)
-        if (activePackage.tong_so_buoi !== null) { 
-            if (activePackage.so_buoi_da_tap >= activePackage.tong_so_buoi) {
-                return res.status(400).json({ message: `Đặt lịch thất bại. Bạn đã sử dụng hết ${activePackage.tong_so_buoi}/${activePackage.tong_so_buoi} buổi của gói này.` });
+        // --- LOGIC MỚI: KIỂM TRA HLV TRÙNG LỊCH ---
+        if (hlv_id) { // Chỉ kiểm tra nếu khách có chọn HLV
+            const conflictCheck = await db.query(
+                `SELECT 1 FROM dat_lich
+                 WHERE hlv_id = $1
+                   AND trang_thai NOT IN ('da huy', 'hoan thanh') -- Không tính lịch đã hủy/hoàn thành
+                   AND (thoi_gian, thoi_gian_ket_thuc) OVERLAPS ($2, $3)`, // Toán tử OVERLAPS
+                [hlv_id, bookingStartTime, bookingEndTime]
+            );
+            if (conflictCheck.rows.length > 0) {
+                return res.status(409).json({ message: 'Đặt lịch thất bại. Huấn luyện viên đã có lịch vào thời gian này.' });
             }
         }
+        // --- KẾT THÚC LOGIC MỚI ---
 
-        // 4. Nếu mọi thứ OK, tạo lịch hẹn
+        // 4. Tạo lịch hẹn (thêm thoi_gian_ket_thuc)
         const query = `
-            INSERT INTO dat_lich (khach_id, hlv_id, chi_nhanh_id, dich_vu_id, thoi_gian, trang_thai, gkh_id)
-            VALUES ($1, $2, $3, $4, $5, 'cho xac nhan', $6) RETURNING *;
+            INSERT INTO dat_lich (khach_id, hlv_id, chi_nhanh_id, dich_vu_id, thoi_gian, thoi_gian_ket_thuc, trang_thai, gkh_id)
+            VALUES ($1, $2, $3, $4, $5, $6, 'cho xac nhan', $7) RETURNING *;
         `;
-        const { rows } = await db.query(query, [khach_id, hlv_id || null, chi_nhanh_id, dich_vu_id, thoi_gian, gkh_id]);
+        const { rows } = await db.query(query, [khach_id, hlv_id || null, chi_nhanh_id, dich_vu_id, thoi_gian, bookingEndTime, gkh_id]);
         
         res.status(201).json({ message: 'Đặt lịch thành công! Vui lòng chờ xác nhận.', data: rows[0] });
 

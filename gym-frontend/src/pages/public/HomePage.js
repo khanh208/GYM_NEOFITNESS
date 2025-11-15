@@ -27,7 +27,7 @@ const FaqItem = ({ faq }) => {
 
 function HomePage() {
     // States để lưu dữ liệu từ API
-    const [trainers, setTrainers] = useState([]);
+    const [trainers, setTrainers] = useState([]); // State này sẽ lưu TẤT CẢ HLV
     const [pricings, setPricings] = useState([]); // State này sẽ lưu TẤT CẢ gói giá
     const [faqs, setFaqs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -55,15 +55,39 @@ function HomePage() {
                 ]);
                 
                 // --- SỬA LỖI LOGIC TẠI ĐÂY ---
-                setTrainers(trainerRes.data); // Lưu TẤT CẢ HLV (hoặc .slice(0, 3) nếu muốn)
-                setPricings(pricingRes.data); // Lưu TẤT CẢ gói giá
-                // --- KẾT THÚC SỬA ---
+                // 1. Kiểm tra data có tồn tại không
+                // 2. Chỉ gọi setTrainers và setPricings MỘT LẦN
                 
-                setFaqs(faqRes.data); 
+                if (trainerRes.data) {
+                    setTrainers(trainerRes.data); // Lưu TẤT CẢ HLV
+                } else {
+                    setTrainers([]); // Đặt là mảng rỗng nếu không có data
+                }
+                
+                if (pricingRes.data) {
+                    // Sắp xếp giá từ thấp đến cao (để gói miễn phí lên đầu)
+                    const sortedPricings = pricingRes.data.sort((a, b) => {
+                        return parseFloat(a.gia_cuoi_cung) - parseFloat(b.gia_cuoi_cung);
+                    });
+                    setPricings(sortedPricings); // Lưu TẤT CẢ gói giá đã sắp xếp
+                } else {
+                    setPricings([]); // Đặt là mảng rỗng
+                }
+                
+                if (faqRes.data) {
+                    setFaqs(faqRes.data);
+                } else {
+                    setFaqs([]);
+                }
+                // --- KẾT THÚC SỬA ---
                 
             } catch (err) {
                 setError('Không thể tải dữ liệu trang chủ.');
                 console.error("Fetch homepage data error:", err);
+                // Đặt là mảng rỗng nếu lỗi để .slice() không bị crash
+                setTrainers([]); 
+                setPricings([]);
+                setFaqs([]);
             } finally {
                 setLoading(false);
             }
@@ -109,10 +133,12 @@ function HomePage() {
                             <p className="popup-description">
                                 Áp dụng trong tháng này cho khách hàng mới. Đừng bỏ lỡ!
                             </p>
+                            {/* Sửa lại ID gói tập thử cho đúng (ví dụ: 11) */}
                             <Link 
-                                to="/goi-tap/11" 
+                                to="/goi-tap/17" 
                                 className="hero-button" 
-                                onClick={closeModal}>
+                                onClick={closeModal}
+                            >
                                 Đăng ký ngay
                             </Link>
                         </div>
@@ -176,9 +202,13 @@ function HomePage() {
                                 )}
                                 <span className="pricing-type">{price.thoi_han}</span>
                                 <h3 className="pricing-name">{price.ten_goi_tap}</h3>
+                                
+                                {/* --- SỬA Ở ĐÂY: Lấy mô tả động --- */}
                                 <p className="pricing-description">
-                                    Mô tả ngắn về gói tập này...
+                                    {price.mo_ta_goi_tap || 'Mô tả chi tiết cho gói tập này.'}
                                 </p>
+                                {/* --- KẾT THÚC SỬA --- */}
+
                                 <div className="pricing-price">
                                     {price.gia_khuyen_mai !== null && (
                                         <span className="original-price">{formatCurrency(price.gia_goc)}</span>
@@ -186,10 +216,19 @@ function HomePage() {
                                     {formatCurrency(price.gia_cuoi_cung)}
                                     <span className="pricing-unit">/gói</span>
                                 </div>
+                                
+                                {/* --- SỬA Ở ĐÂY: Lấy số buổi động --- */}
                                 <ul className="pricing-features">
-                                    <li>Combo 12 buổi: ...</li>
-                                    <li>Giá tính cho 2 người</li>
+                                    {/* Chỉ hiển thị dòng này nếu 'ca_buoi' có giá trị (lớn hơn 0) */}
+                                    {price.ca_buoi > 0 && (
+                                        <li>Combo {price.ca_buoi} buổi</li>
+                                    )}
+                                    
+                                    {/* (Bạn có thể thêm các feature tĩnh khác nếu muốn) */}
+                                    <li>Giá tính cho 1 người</li>
                                 </ul>
+                                {/* --- KẾT THÚC SỬA --- */}
+
                                 <button 
                                     className="pricing-button"
                                     onClick={() => navigate(`/goi-tap/${price.gia_id}`)}
@@ -270,20 +309,21 @@ function HomePage() {
             <section className="cta-section">
                 <div className="section-container cta-container">
                     <div className="cta-content">
-                        <h2 className="section-title">Ưu đãi</h2>
+                        <h2 className="section-title">Ưu đãi mở thẻ</h2>
                         <p className="cta-title">Nhận 1 buổi PT thử + đánh giá InBody miễn phí</p>
                         <p className="cta-description">
                             Áp dụng trong tháng này cho khách hàng mới tại tất cả cơ sở NeoFitness.
                         </p>
                     </div>
                     <div className="cta-action">
+                         {/* Sửa lại ID gói tập thử cho đúng (ví dụ: 11) */}
                         <Link 
-                                to="/goi-tap/11" 
-                                className="hero-button" 
-                                onClick={closeModal}
-                            >
-                                Đăng ký ngay
-                            </Link>
+                            to="/goi-tap/17" 
+                            className="hero-button" 
+                            onClick={closeModal}
+                        >
+                            Đăng ký ngay
+                        </Link>
                     </div>
                 </div>
             </section>

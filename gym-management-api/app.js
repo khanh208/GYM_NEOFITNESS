@@ -23,6 +23,8 @@ const contactRoutes = require('./routes/contactRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 const { protect, authorize } = require('./middleware/authMiddleware');
 const uploadRoutes = require('./routes/uploadRoutes');
+const customerPackageRoutes = require('./routes/customerPackageRoutes');
+
 
 
 
@@ -57,6 +59,7 @@ app.use('/api/contacts', contactRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/customer', customerRoutes)
+app.use('/api/customer-packages', customerPackageRoutes);
 
 
 const dirname = path.resolve();

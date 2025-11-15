@@ -15,7 +15,13 @@ function PackagePage() {
             try {
                 // Gọi API public để lấy tất cả các mức giá
                 const response = await axios.get('http://localhost:3000/api/pricings');
-                setPricings(response.data); // Lấy tất cả
+                
+                const sortedData = response.data.sort((a, b) => {
+                    return parseFloat(a.gia_cuoi_cung) - parseFloat(b.gia_cuoi_cung);
+                });
+                // --- KẾT THÚC SẮP XẾP ---
+                
+                setPricings(sortedData); // Lấy tất cả
             } catch (err) {
                 setError('Không thể tải dữ liệu gói tập.');
                 console.error("Fetch pricings error:", err);

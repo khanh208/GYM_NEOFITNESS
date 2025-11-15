@@ -42,6 +42,9 @@ import PackageDetailPage from './pages/public/PackageDetailPage';
 import PaymentSuccessPage from './pages/public/PaymentSuccessPage';
 import CustomerProfilePage from './pages/public/CustomerProfilePage';
 import BookingPage from './pages/public/BookingPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import CustomerPackageListPage from './pages/admin/CustomerPackageListPage';
 
 // Trainer Pages
 import TrainerProfilePage from './pages/trainer/TrainerProfilePage';
@@ -58,6 +61,7 @@ import MainLayout from './components/MainLayout';
 function ProtectedRoute({ children }) {
     const token = localStorage.getItem('accessToken');
     return token ? children : <Navigate to="/login" replace />;
+    
 }
 
 // --- Component Bảo vệ Route theo Vai trò ---
@@ -104,6 +108,8 @@ function App() {
 
                 {/* === Auth Routes === */}
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 {/* TODO: Add routes for Register, Forgot Password */}
 
                 {/* === Admin Protected Routes === */}
@@ -161,6 +167,7 @@ function App() {
                     <Route path="gallery" element={<GalleryListPage />} />
                     <Route path="gallery/new" element={<GalleryFormPage />} />
                     <Route path="gallery/:id/edit" element={<GalleryFormPage />} />
+                    <Route path="customer-packages" element={<CustomerPackageListPage />} />
                 </Route>
 
                 {/* === Trainer Protected Routes === */}

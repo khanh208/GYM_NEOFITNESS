@@ -6,13 +6,16 @@ const {
     getCustomerById,
     updateCustomer,
     deleteCustomer,
-    getMyPackages // Đảm bảo đã import hàm này
+    getMyPackages,
+    registerFreeTrial // Đảm bảo đã import hàm này
 } = require('../controllers/customerController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
 // --- SỬA THỨ TỰ ---
 // Route "cụ thể" (/my-packages) PHẢI đặt TRƯỚC route "chung" (/:id)
 router.get('/my-packages', protect, authorize('customer'), getMyPackages);
+router.get('/my-packages', protect, authorize('customer'), getMyPackages);
+router.post('/register-free-trial', protect, authorize('customer'), registerFreeTrial);
 
 // --- CÁC ROUTE KHÁC ---
 router.get('/', protect, authorize('admin'), getAllCustomers);

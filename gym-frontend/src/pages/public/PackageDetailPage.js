@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import './PackageDetailPage.css';
+import './PackageDetailPage.css'; // Sẽ tạo file CSS sau
 
 function PackageDetailPage() {
     const { id } = useParams(); // gia_id
@@ -12,36 +12,37 @@ function PackageDetailPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // State cho form đăng ký (cho cả 2 loại)
+    // State cho form đăng ký tư vấn
     const [formData, setFormData] = useState({ ho_ten: '', so_dien_thoai: '', email: '' });
     const [formLoading, setFormLoading] = useState(false);
     const [formError, setFormError] = useState('');
     const [formSuccess, setFormSuccess] = useState('');
 
-    // State cho luồng Mua Ngay
+    // State cho luồng Mua Ngay / Gói Thử
     const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
-    const [buyNowLoading, setBuyNowLoading] = useState(false);
-
-    // Biến cờ để xác định đây có phải gói thử miễn phí không
+    const [actionLoading, setActionLoading] = useState(false); // Đổi tên từ buyNowLoading
     const [isFreePackage, setIsFreePackage] = useState(false);
 
+    // Fetch dữ liệu chi tiết của gói giá và kiểm tra đăng nhập
     useEffect(() => {
-        // Kiểm tra đăng nhập
+        // 1. Kiểm tra trạng thái đăng nhập
         const token = localStorage.getItem('accessToken');
         const role = localStorage.getItem('userRole');
         if (token && role === 'customer') {
             setIsCustomerLoggedIn(true);
         }
 
+        // 2. Fetch chi tiết gói
         const fetchPackageDetail = async () => {
             setLoading(true);
             try {
+                // Backend API GET /api/pricings/:id đã được nâng cấp để JOIN và tính toán
                 const response = await axios.get(`http://localhost:3000/api/pricings/${id}`);
                 setPricePackage(response.data);
                 
                 // --- KIỂM TRA GÓI MIỄN PHÍ ---
-                // Nếu giá cuối cùng là 0, đây là gói thử
-                if (parseFloat(response.data.gia_cuoi_cung) === 0) {
+                // Dựa trên giá cuối cùng đã tính (Backend trả về là số)
+                if (parseFloat(response.data.gia_goc) === 0) {
                     setIsFreePackage(true);
                 }
                 // --- KẾT THÚC KIỂM TRA ---
@@ -61,30 +62,19 @@ function PackageDetailPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // --- HÀM SUBMIT CHUNG (CHO CẢ TƯ VẤN VÀ GÓI THỬ) ---
-    // Sẽ gửi thông tin qua API /api/contacts
+    // --- HÀM SUBMIT TƯ VẤN (Gói có phí) ---
     const handleSubmitContactForm = async (e) => {
         e.preventDefault();
         setFormLoading(true);
         setFormError('');
         setFormSuccess('');
 
-        let noiDungDangKy = '';
-        if (isFreePackage) {
-            // Nội dung cho gói thử
-            noiDungDangKy = `
-                KHÁCH HÀNG ĐĂNG KÝ GÓI THỬ MIỄN PHÍ:
-                - Gói: ${pricePackage.ten_goi_tap} (ID: ${pricePackage.gia_id})
-                - Thời hạn: ${pricePackage.thoi_han}
-            `;
-        } else {
-            // Nội dung cho gói tư vấn (gói có phí)
-            noiDungDangKy = `
-                KHÁCH HÀNG ĐĂNG KÝ TƯ VẤN GÓI TẬP:
-                - Gói: ${pricePackage.ten_goi_tap} (ID: ${pricePackage.gia_id})
-                - Giá: ${formatCurrency(pricePackage.gia_cuoi_cung)} VND
-            `;
-        }
+        // Chuẩn bị nội dung gửi đi
+        const noiDungDangKy = `
+            KHÁCH HÀNG ĐĂNG KÝ TƯ VẤN GÓI TẬP:
+            - Gói: ${pricePackage.ten_goi_tap} (ID: ${pricePackage.gia_id})
+            - Giá: ${formatCurrency(pricePackage.gia_cuoi_cung)} VND
+        `;
 
         const contactData = {
             ho_ten: formData.ho_ten,
@@ -95,7 +85,7 @@ function PackageDetailPage() {
 
         try {
             await axios.post('http://localhost:3000/api/contacts', contactData);
-            setFormSuccess(isFreePackage ? 'Đăng ký tập thử thành công! Chúng tôi sẽ liên hệ để xếp lịch cho bạn.' : 'Đăng ký tư vấn thành công! Chúng tôi sẽ liên hệ với bạn ngay.');
+            setFormSuccess('Đăng ký tư vấn thành công! Chúng tôi sẽ liên hệ với bạn ngay.');
             setFormData({ ho_ten: '', so_dien_thoai: '', email: '' }); // Reset form
         } catch (err) {
             setFormError(err.response?.data?.message || 'Gửi đăng ký thất bại. Vui lòng thử lại.');
@@ -104,31 +94,56 @@ function PackageDetailPage() {
         }
     };
     
-    // --- HÀM MUA NGAY (Chỉ cho gói có phí) ---
-    const handleBuyNow = async () => {
-        // ... (Logic hàm này giữ nguyên)
+    // --- HÀM XỬ LÝ NÚT CHÍNH (Mua ngay HOẶC Nhận miễn phí) ---
+    const handleMainAction = async () => {
+        // 1. Kiểm tra đăng nhập
         if (!isCustomerLoggedIn) {
-            alert("Vui lòng đăng nhập để thực hiện thanh toán.");
+            alert("Vui lòng đăng nhập để thực hiện thao tác này.");
             navigate('/login', { state: { from: `/goi-tap/${id}` } }); 
             return;
         }
-        setBuyNowLoading(true);
+
+        setActionLoading(true);
         setFormError('');
         setFormSuccess('');
-        try {
-            const token = localStorage.getItem('accessToken');
-            const response = await axios.post(
-                'http://localhost:3000/api/payments',
-                { gia_id: id },
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
-            if (response.data.payUrl) {
-                window.location.href = response.data.payUrl;
+        const token = localStorage.getItem('accessToken');
+
+        if (isFreePackage) {
+            // --- LUỒNG ĐĂNG KÝ GÓI THỬ (MỚI) ---
+            try {
+                // Gọi API mới để tự động kích hoạt gói
+                const response = await axios.post(
+                    'http://localhost:3000/api/customer/register-free-trial',
+                    { gia_id: id }, // Chỉ cần gửi gia_id
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+                // Hiển thị thông báo thành công từ backend
+                setFormSuccess(response.data.message + " Bạn có thể xem trong 'Hồ sơ của tôi'.");
+            } catch (err) {
+                // Hiển thị lỗi (ví dụ: "Bạn đã đăng ký gói thử này rồi.")
+                setFormError(err.response?.data?.message || 'Đăng ký gói thử thất bại.');
+                console.error("Free trial registration error:", err.response?.data || err.message);
+            } finally {
+                setActionLoading(false);
             }
-        } catch (err) {
-            setFormError(err.response?.data?.message || 'Không thể tạo thanh toán. Vui lòng thử lại.');
-        } finally {
-            setBuyNowLoading(false);
+
+        } else {
+            // --- LUỒNG MUA NGAY (MOMO) ---
+            try {
+                const response = await axios.post(
+                    'http://localhost:3000/api/payments',
+                    { gia_id: id },
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+                if (response.data.payUrl) {
+                    window.location.href = response.data.payUrl;
+                }
+            } catch (err) {
+                setFormError(err.response?.data?.message || 'Không thể tạo thanh toán.');
+                console.error("Buy Now Error:", err.response?.data || err.message);
+            } finally {
+                setActionLoading(false);
+            }
         }
     };
     
@@ -150,30 +165,79 @@ function PackageDetailPage() {
                 
                 {/* --- CỘT THÔNG TIN GÓI TẬP --- */}
                 <div className="package-info">
-                    {/* ... (Tất cả JSX của cột thông tin gói tập giữ nguyên) ... */}
                     <span className="package-info-type">{pricePackage.thoi_han}</span>
-                    <h1 className="package-info-title">{pricePackage.ten_goi_tap}</h1>
-                    {/* ... (v.v...) */}
+                    {/* Sử dụng ten_goi_tap_full hoặc ten_goi_tap từ backend */}
+                    <h1 className="package-info-title">{pricePackage.ten_goi_tap_full || pricePackage.ten_goi_tap}</h1>
+                    {pricePackage.khuyen_mai_id && (
+                        <span className="package-info-badge">Đang giảm {pricePackage.giam_gia_phantram}%</span>
+                    )}
+                    {/* Sử dụng mo_ta_chi_tiet từ backend */}
+                    <p className="package-info-description">
+                        {pricePackage.mo_ta_chi_tiet || "Hiện chưa có mô tả chi tiết cho gói tập này."}
+                    </p>
                     <div className="package-info-price">
                         <span className="final-price">{isFreePackage ? "Miễn Phí" : `${formatCurrency(pricePackage.gia_cuoi_cung)} VND`}</span>
-                        {pricePackage.gia_khuyen_mai && !isFreePackage && (
+                        {pricePackage.gia_khuyen_mai !== null && !isFreePackage && (
                             <span className="original-price">{formatCurrency(pricePackage.gia_goc)}</span>
                         )}
                     </div>
-                    {/* ... (features) ... */}
+                    <ul className="package-info-features">
+                        {/* Hiển thị số buổi nếu có */}
+                        {pricePackage.ca_buoi > 0 && (
+                            <li>{pricePackage.ca_buoi} buổi tập 1:1</li>
+                        )}
+                        <li>Tặng 1 buổi InBody</li>
+                        <li>Sử dụng khu vực xông hơi</li>
+                    </ul>
                 </div>
 
                 {/* --- CỘT FORM ĐĂNG KÝ (ĐÃ CẬP NHẬT LOGIC) --- */}
                 <div className="package-register-form">
                     
-                    {/* --- HIỂN THỊ TÙY THEO GÓI MIỄN PHÍ HAY CÓ PHÍ --- */}
-                    
+                    {/* Hiển thị lỗi chung (nếu có) */}
+                    {formSuccess && <p className="contact-success-message">{formSuccess}</p>}
+                    {formError && <p className="contact-error-message">{formError}</p>}
+
                     {isFreePackage ? (
                         
                         // --- LUỒNG 1: GÓI MIỄN PHÍ (TẬP THỬ) ---
                         <>
-                            <h3>Đăng ký tập thử (Miễn phí)</h3>
-                            <p>Để lại thông tin, chúng tôi sẽ liên hệ bạn để sắp xếp lịch tập thử.</p>
+                            <h3>Đăng ký gói tập thử</h3>
+                            <p>Gói tập này miễn phí. Nhấn nút bên dưới để kích hoạt gói vào hồ sơ của bạn.</p>
+                            <button 
+                                className="hero-button" 
+                                onClick={handleMainAction} 
+                                disabled={actionLoading}
+                                style={{ backgroundColor: '#4CAF50', width: '100%', marginBottom: '10px' }}
+                            >
+                                {actionLoading ? 'Đang xử lý...' : (isCustomerLoggedIn ? 'Nhận gói thử miễn phí' : 'Đăng nhập để nhận gói')}
+                            </button>
+                            {!isCustomerLoggedIn && (
+                                <p style={{fontSize: '0.9em', color: '#ccc', textAlign: 'center'}}>Bạn cần có tài khoản để nhận gói thử.</p>
+                            )}
+                        </>
+
+                    ) : (
+
+                        // --- LUỒNG 2: GÓI CÓ PHÍ (TƯ VẤN / MUA NGAY) ---
+                        <>
+                            <h3>Thanh toán trực tiếp</h3>
+                            <p>Dành cho khách hàng đã có tài khoản. Thanh toán qua Momo và kích hoạt gói ngay.</p>
+                            <button 
+                                className="hero-button" 
+                                onClick={handleMainAction} 
+                                disabled={actionLoading}
+                                style={{ backgroundColor: '#4CAF50', width: '100%', marginBottom: '10px' }}
+                            >
+                                {actionLoading ? 'Đang tạo...' : (isCustomerLoggedIn ? 'Mua ngay qua Momo' : 'Đăng nhập để Mua ngay')}
+                            </button>
+                            
+                            <div className="form-divider">
+                                <span>HOẶC</span>
+                            </div>
+
+                            <h3>Đăng ký tư vấn (Miễn phí)</h3>
+                            <p>Dành cho khách hàng mới. Để lại thông tin, chúng tôi sẽ gọi lại cho bạn.</p>
                             <form onSubmit={handleSubmitContactForm}>
                                 <div className="form-group-contact">
                                     <label htmlFor="ho_ten">Họ & tên *</label>
@@ -188,49 +252,6 @@ function PackageDetailPage() {
                                     <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
                                 </div>
                                 
-                                {formSuccess && <p className="contact-success-message">{formSuccess}</p>}
-                                {formError && <p className="contact-error-message">{formError}</p>}
-
-                                <button type="submit" className="hero-button" disabled={formLoading}>
-                                    {formLoading ? 'Đang gửi...' : 'Đăng ký thử miễn phí'}
-                                </button>
-                            </form>
-                        </>
-
-                    ) : (
-
-                        // --- LUỒNG 2: GÓI CÓ PHÍ (TƯ VẤN / MUA NGAY) ---
-                        <>
-                            <h3>Thanh toán trực tiếp</h3>
-                            <p>Dành cho khách hàng đã có tài khoản. Thanh toán qua Momo và kích hoạt gói ngay.</p>
-                            <button 
-                                className="hero-button" 
-                                onClick={handleBuyNow} 
-                                disabled={buyNowLoading}
-                                style={{ backgroundColor: '#4CAF50', width: '100%', marginBottom: '10px' }}
-                            >
-                                {buyNowLoading ? 'Đang tạo...' : (isCustomerLoggedIn ? 'Mua ngay qua Momo' : 'Đăng nhập để Mua ngay')}
-                            </button>
-                            
-                            <div className="form-divider">
-                                <span>HOẶC</span>
-                            </div>
-
-                            <h3>Đăng ký tư vấn (Miễn phí)</h3>
-                            <p>Để lại thông tin, chúng tôi sẽ gọi lại cho bạn.</p>
-                            <form onSubmit={handleSubmitContactForm}>
-                                <div className="form-group-contact">
-                                    <label htmlFor="ho_ten">Họ & tên *</label>
-                                    <input type="text" id="ho_ten" name="ho_ten" value={formData.ho_ten} onChange={handleChange} required />
-                                </div>
-                                <div className="form-group-contact">
-                                    <label htmlFor="so_dien_thoai">Số điện thoại *</label>
-                                    <input type="tel" id="so_dien_thoai" name="so_dien_thoai" value={formData.so_dien_thoai} onChange={handleChange} required />
-                                </div>
-                                
-                                {formSuccess && <p className="contact-success-message">{formSuccess}</p>}
-                                {formError && <p className="contact-error-message">{formError}</p>}
-
                                 <button type="submit" className="hero-button" disabled={formLoading}>
                                     {formLoading ? 'Đang gửi...' : 'Gửi đăng ký tư vấn'}
                                 </button>

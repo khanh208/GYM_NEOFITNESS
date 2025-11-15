@@ -59,9 +59,7 @@ function PublicLayout() {
                                 )}
                                 <Link to="/dat-lich" className="btn-book-now">Đặt lịch ngay</Link>
                                 {userRole === 'customer' && (
-                                    <Link to="/ho-so-cua-toi" className="btn-login">
-                                        Hồ sơ của tôi
-                                    </Link>
+                                    <Link to="/ho-so-cua-toi" className="btn-login" style={{ marginRight: '10px' }}>Hồ sơ của tôi</Link>
                                 )}
                                 
                                 <button onClick={handleLogout} className="btn-logout">Đăng xuất</button>
