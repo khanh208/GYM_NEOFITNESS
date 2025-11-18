@@ -84,13 +84,40 @@
 
 /* Responsive */
 @media (max-width: 992px) {
+    /* Tablet: 2 cột */
+    .pricing-list, 
+    .trainer-list, 
+    .package-list-grid, 
     .trainer-list-grid {
-        grid-template-columns: 1fr 1fr; /* 2 cột */
+        grid-template-columns: repeat(2, 1fr) !important;
     }
 }
 
 @media (max-width: 768px) {
+    /* Mobile: 1 cột */
+    .pricing-list, 
+    .trainer-list, 
+    .steps-grid,
+    .package-list-grid, 
     .trainer-list-grid {
-        grid-template-columns: 1fr; /* 1 cột */
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Hero Section trên mobile */
+    .hero-section {
+        height: 400px; /* Giảm chiều cao */
+    }
+    
+    .hero-content h1 {
+        font-size: 2em; /* Giảm cỡ chữ */
+    }
+    
+    /* CTA Section */
+    .cta-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .cta-action {
+        margin-top: 20px;
     }
 }

@@ -9,6 +9,7 @@ import LogoImage from '../assets/Logo_NEOFITNESS.png';
 function PublicLayout() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userRole, setUserRole] = useState(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
 
     // Kiểm tra trạng thái đăng nhập khi layout tải
@@ -29,6 +30,14 @@ function PublicLayout() {
         setUserRole(null);
         navigate('/'); // Quay về trang chủ sau khi đăng xuất
     };
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    // Hàm đóng menu khi click vào link (để chuyển trang)
+    const closeMobileMenu = () => {
+        setIsMobileMenuOpen(false);
+    };
 
     return (
         <div className="public-layout">
@@ -38,38 +47,38 @@ function PublicLayout() {
                     <Link to="/" className="navbar-logo">
                         <img src={LogoImage} alt="NeoFitness Logo" className="logo-image" />
                     </Link>
-                    <nav className="navbar-menu">
-                        <Link to="/hlv-ca-nhan">HLV cá nhân</Link>
-                        <Link to="/goi-tap">Gói tập</Link>
-                        <Link to="/hoi-dap">Hỏi đáp</Link>
-                        <Link to="/lien-he">Liên hệ</Link>
-                    </nav>
-
-                    {/* --- Nút bấm Đăng nhập/Đăng xuất --- */}
-                    <div className="navbar-actions">
-                        {isLoggedIn ? (
-                            // Đã đăng nhập
-                            <>
-                            
-                                {userRole === 'admin' && (
-                                    <Link to="/admin/dashboard" className="btn-login" style={{ marginRight: '10px' }}>Trang Admin</Link>
-                                )}
-                                {userRole === 'trainer' && (
-                                    <Link to="/trainer/schedule" className="btn-login" style={{ marginRight: '10px' }}>Trang Trainer</Link>
-                                )}
-                                <Link to="/dat-lich" className="btn-book-now">Đặt lịch ngay</Link>
-                                {userRole === 'customer' && (
-                                    <Link to="/ho-so-cua-toi" className="btn-login" style={{ marginRight: '10px' }}>Hồ sơ của tôi</Link>
-                                )}
-                                
-                                <button onClick={handleLogout} className="btn-logout">Đăng xuất</button>
-                            </>
-                        ) : (
-                            // Chưa đăng nhập
-                            <Link to="/login" className="btn-login">Đăng nhập</Link>
-                        )}
+                    <div className="mobile-menu-icon" onClick={toggleMobileMenu}>
+                        {isMobileMenuOpen ? '✕' : '☰'}
                     </div>
-                </div>
+                    <div className={`navbar-content ${isMobileMenuOpen ? 'active' : ''}`}>
+                        <nav className="navbar-menu">
+                            <Link to="/hlv-ca-nhan" onClick={closeMobileMenu}>HLV cá nhân</Link>
+                            <Link to="/goi-tap" onClick={closeMobileMenu}>Gói tập</Link>
+                            <Link to="/hoi-dap" onClick={closeMobileMenu}>Hỏi đáp</Link>
+                            <Link to="/lien-he" onClick={closeMobileMenu}>Liên hệ</Link>
+                        </nav>
+
+                        <div className="navbar-actions">
+                            <Link to="/dat-lich" className="btn-book-now" onClick={closeMobileMenu}>Đặt lịch ngay</Link>
+                            {isLoggedIn ? (
+                                <>
+                                    {userRole === 'admin' && (
+                                        <Link to="/admin/dashboard" className="btn-login" onClick={closeMobileMenu}>Admin</Link>
+                                    )}
+                                    {userRole === 'trainer' && (
+                                        <Link to="/trainer/schedule" className="btn-login" onClick={closeMobileMenu}>Trainer</Link>
+                                    )}
+                                    {userRole === 'customer' && (
+                                        <Link to="/ho-so-cua-toi" className="btn-login" onClick={closeMobileMenu}>Hồ sơ</Link>
+                                    )}
+                                    <button onClick={() => { handleLogout(); closeMobileMenu(); }} className="btn-logout">Đăng xuất</button>
+                                </>
+                            ) : (
+                                <Link to="/login" className="btn-login" onClick={closeMobileMenu}>Đăng nhập</Link>
+                            )}
+                        </div>
+                    </div>
+            </div>
             </header>
 
             {/* --- Nội dung trang --- */}

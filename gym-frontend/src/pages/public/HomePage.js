@@ -135,7 +135,7 @@ function HomePage() {
                             </p>
                             {/* Sửa lại ID gói tập thử cho đúng (ví dụ: 11) */}
                             <Link 
-                                to="/goi-tap/18" 
+                                to="/goi-tap/17" 
                                 className="hero-button" 
                                 onClick={closeModal}
                             >
@@ -318,7 +318,7 @@ function HomePage() {
                     <div className="cta-action">
                          {/* Sửa lại ID gói tập thử cho đúng (ví dụ: 11) */}
                         <Link 
-                            to="/goi-tap/18" 
+                            to="/goi-tap/17" 
                             className="hero-button" 
                             onClick={closeModal}
                         >

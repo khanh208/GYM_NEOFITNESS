@@ -192,9 +192,12 @@ const registerFreeTrial = async (req, res) => {
         
         const { goi_tap_id, thoi_han, ca_buoi, gia } = packageInfoResult.rows[0];
         
-        if (parseFloat(gia) !== 0) {
-            return res.status(400).json({ message: 'Đây không phải là gói tập miễn phí.' });
-        }
+        console.log(`[Free Trial Check] Giá gói: ${gia} (Type: ${typeof gia})`);
+
+// So sánh an toàn (cho cả chuỗi '0.00' và số 0)
+if (Number(gia) > 0) {
+    return res.status(400).json({ message: 'Đây không phải là gói tập miễn phí.' });
+}
         
         // --- SỬA LOGIC CHECK Ở ĐÂY ---
         // Check 2: Khách hàng đã TỪNG DÙNG (active, pending, used, expired) gói này CHƯA?

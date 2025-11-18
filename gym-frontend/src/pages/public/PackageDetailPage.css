@@ -163,3 +163,19 @@
     padding: 0 10px;
     font-weight: bold;
 }
+@media (max-width: 992px) {
+    .package-detail-grid {
+        grid-template-columns: 1fr; /* 1 cột duy nhất */
+        gap: 30px;
+    }
+
+    /* Form không sticky nữa trên mobile */
+    .package-register-form {
+        position: static; 
+        margin-top: 20px;
+    }
+    
+    .package-info-title {
+        font-size: 2em;
+    }
+}

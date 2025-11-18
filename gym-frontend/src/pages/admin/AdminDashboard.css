@@ -1,0 +1,47 @@
+/* src/pages/admin/AdminDashboard.css */
+.dashboard-container {
+    padding: 20px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+    border-bottom: 4px solid #ccc;
+}
+
+.stat-card h3 {
+    margin-top: 0;
+    color: #777;
+    font-size: 1em;
+    text-transform: uppercase;
+}
+
+.stat-card .stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 10px 0 0 0;
+    color: #333;
+}
+
+/* Màu sắc cho từng thẻ */
+.stat-card.revenue { border-bottom-color: #4CAF50; } /* Xanh lá */
+.stat-card.customers { border-bottom-color: #2196F3; } /* Xanh dương */
+.stat-card.packages { border-bottom-color: #FF9800; } /* Cam */
+.stat-card.bookings { border-bottom-color: #E91E63; } /* Hồng */
+
+.recent-activity {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}

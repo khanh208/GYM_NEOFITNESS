@@ -25,6 +25,7 @@ const { protect, authorize } = require('./middleware/authMiddleware');
 const uploadRoutes = require('./routes/uploadRoutes');
 const customerPackageRoutes = require('./routes/customerPackageRoutes');
 const checkInRoutes = require('./routes/checkInRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 
 
@@ -61,6 +62,7 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/customer', customerRoutes)
 app.use('/api/customer-packages', customerPackageRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 
 const dirname = path.resolve();

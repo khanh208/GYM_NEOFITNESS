@@ -8,31 +8,47 @@ body {
 .main-layout {
     display: flex;
     min-height: 100vh;
+    position: relative; /* Để định vị overlay */
 }
 
 /* --- Sidebar Styles --- */
 .sidebar {
-    width: 240px;
+    width: 250px;
     background-color: #2c3e50;
     color: #ecf0f1;
     display: flex;
     flex-direction: column;
     position: fixed;
     height: 100%;
+    top: 0;
+    left: 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    z-index: 100; /* Ensure sidebar stays on top */
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
 }
 
 .sidebar-header {
     padding: 20px 15px;
     text-align: center;
     border-bottom: 1px solid #34495e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .sidebar-header h3 {
     margin: 0;
-    font-size: 1.4em;
+    font-size: 1.2em;
     color: #fff;
+}
+
+.close-sidebar-btn {
+    display: none; /* Ẩn nút đóng trên desktop */
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5em;
+    cursor: pointer;
 }
 
 .sidebar-menu {
@@ -40,31 +56,23 @@ body {
     padding: 0;
     margin: 20px 0;
     flex-grow: 1;
+    overflow-y: auto; /* Cho phép cuộn menu nếu quá dài */
 }
 
-.sidebar-menu li a { /* Style NavLink */
+.sidebar-menu li a {
     display: block;
     padding: 12px 20px;
     color: #bdc3c7;
     text-decoration: none;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    border-left: 4px solid transparent; /* Increased thickness */
-    margin-left: -4px; /* Adjust for border */
+    transition: background-color 0.2s ease;
+    border-left: 4px solid transparent;
 }
 
-.sidebar-menu li a:hover {
+.sidebar-menu li a:hover, .sidebar-menu li a.active {
     background-color: #34495e;
     color: #fff;
+    border-left-color: #e74c3c;
 }
-
-/* Style for active NavLink */
-.sidebar-menu li a.active {
-    background-color: #34495e;
-    color: #fff;
-    border-left-color: #e74c3c; /* Red indicator */
-    font-weight: bold;
-}
-
 
 .logout-button {
     padding: 12px 20px;
@@ -74,84 +82,53 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    text-align: center;
-    transition: background-color 0.2s ease;
+    font-weight: bold;
 }
 
-.logout-button:hover {
-    background-color: #c0392b;
-}
-
-/* --- Content Area Styles --- */
+/* --- Content Area --- */
 .content-area {
     flex: 1;
-    margin-left: 240px; /* Offset by sidebar width */
+    margin-left: 250px; /* Đẩy nội dung sang phải */
     display: flex;
     flex-direction: column;
+    width: calc(100% - 250px); /* Quan trọng để không bị tràn */
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
 }
 
-/* --- Header Styles --- */
+/* --- Header --- */
 .header {
     background-color: #ffffff;
-    padding: 15px 30px;
+    padding: 10px 20px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #e0e0e0;
-    color: #333;
-    position: sticky; /* Make header sticky */
+    position: sticky;
     top: 0;
-    z-index: 99; /* Below sidebar */
+    z-index: 900;
+    height: 60px;
+    box-sizing: border-box;
 }
 
-/* --- Main Content Styles --- */
+.menu-toggle-btn {
+    display: none; /* Ẩn nút menu trên desktop */
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #333;
+}
+
+/* --- Main Content --- */
 .main-content {
     flex: 1;
-    padding: 30px;
+    padding: 20px;
     background-color: #f4f7f6;
-    overflow-y: auto;
+    overflow-x: hidden; /* Tránh thanh cuộn ngang toàn trang */
 }
 
-/* Basic table styling */
-.main-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
-    overflow: hidden; /* For border radius */
-}
-
-.main-content th,
-.main-content td {
-    border-bottom: 1px solid #e0e0e0; /* Only bottom border */
-    padding: 12px 15px;
-    text-align: left;
-    vertical-align: middle;
-}
-
-.main-content th {
-    background-color: #f8f9fa;
-    font-weight: 600; /* Slightly bolder */
-    color: #495057;
-    font-size: 0.9em;
-    text-transform: uppercase;
-}
-.main-content td {
-     color: #333;
-}
-
-.main-content tr:last-child td {
-    border-bottom: none; /* Remove border for last row */
-}
-
-.main-content tr:hover {
-    background-color: #f1f3f5; /* Slight hover effect */
-}
-
-/* Basic button styling */
+/* --- CSS CHUNG CHO CÁC NÚT --- */
 .main-content button {
     padding: 6px 12px;
     margin-right: 5px;
@@ -159,77 +136,81 @@ body {
     border-radius: 4px;
     border: 1px solid transparent;
     font-size: 0.9em;
-    transition: opacity 0.2s ease;
+    white-space: nowrap; /* Giữ nút trên 1 dòng */
 }
+.edit-button, .add-button { background-color: #007bff; color: white; border: none; }
+.delete-button { background-color: #dc3545; color: white; border: none; }
+.cancel-button { background-color: #6c757d; color: white; border: none; }
 
-.main-content button:hover {
-    opacity: 0.8;
-}
-
-/* Specific button styles */
-.main-content button.edit-button,
-.main-content button.add-button /* Assuming you might use this class */
- {
-    background-color: #007bff; /* Standard blue */
-    color: white;
-    border: none;
-}
-.main-content button.delete-button {
-    background-color: #dc3545; /* Standard red */
-    color: white;
-    border: none;
-}
-.main-content button.cancel-button {
-    background-color: #6c757d; /* Standard gray */
-    color: white;
-    border: none;
-}
-
-/* Form styling (basic) */
-.main-content form div {
-    margin-bottom: 15px;
-}
-.main-content form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #555;
-}
-.main-content form input[type="text"],
-.main-content form input[type="number"], /* If you add numbers */
-.main-content form input[type="email"], /* If needed */
-.main-content form textarea,
-.main-content form select {
+/* --- CSS CHO BẢNG (QUAN TRỌNG CHO MOBILE) --- */
+.main-content table {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    box-sizing: border-box; /* Important */
-    font-size: 1em;
-}
-.main-content form textarea {
-    min-height: 80px;
-}
-.package-status {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: bold;
-    color: #fff;
-    text-transform: capitalize;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    /* Giúp bảng hiển thị tốt trên mobile */
+    display: block; 
+    overflow-x: auto; 
+    white-space: nowrap; 
 }
 
-.package-status.active {
-    background-color: #28a745; /* Màu xanh lá */
+.main-content th, .main-content td {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 15px;
+    text-align: left;
 }
-.package-status.pending {
-    background-color: #ffc107; /* Màu vàng */
-    color: #333;
-}
-.package-status.cancelled {
-    background-color: #dc3545; /* Màu đỏ */
-}
-.package-status.expired,
-.package-status.used {
-    background-color: #6c757d; /* Màu xám */
+.main-content th { background-color: #f8f9fa; }
+
+/* --- RESPONSIVE MOBILE (<= 768px) --- */
+@media (max-width: 768px) {
+    /* 1. Sidebar ẩn đi */
+    .sidebar {
+        transform: translateX(-100%); /* Đẩy sidebar ra khỏi màn hình trái */
+        width: 280px; /* Rộng hơn chút cho dễ bấm */
+    }
+
+    /* 2. Sidebar khi mở (class 'open') */
+    .sidebar.open {
+        transform: translateX(0); /* Trượt vào */
+    }
+
+    /* 3. Nút đóng sidebar hiện ra */
+    .close-sidebar-btn {
+        display: block;
+    }
+
+    /* 4. Content Area mở rộng full màn hình */
+    .content-area {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* 5. Hiện nút Menu trên header */
+    .menu-toggle-btn {
+        display: block;
+    }
+
+    /* 6. Overlay làm tối màn hình */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 999; /* Dưới sidebar nhưng trên content */
+    }
+
+    /* Form trên mobile */
+    .main-content form input, 
+    .main-content form select, 
+    .main-content form textarea {
+        width: 100%; /* Input full chiều rộng */
+        box-sizing: border-box;
+    }
+    
+    .main-content button {
+        margin-bottom: 5px; /* Nút cách nhau ra */
+    }
 }
